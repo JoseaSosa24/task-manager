@@ -1,0 +1,155 @@
+<div class="min-h-screen flex bg-gray-100 dark:bg-gray-900">
+  <!-- Sidebar omitido para enfocarnos en contenido -->
+
+  <main class="flex-1 p-6 space-y-8">
+    <!-- Welcome Header -->
+    <div class="text-gray-800 dark:text-gray-100">
+      <h1 class="text-3xl font-semibold">
+        ¡Hola{{ userProfile ? ', ' + userProfile.firstName : '' }}!
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400">Resumen de tareas</p>
+    </div>
+
+    <!-- Estadísticas Principales -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <mat-card class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex items-center space-x-4 hover:shadow-lg transition">
+        <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900">
+          <mat-icon class="text-blue-600">assignment</mat-icon>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">{{ stats?.total }}</h2>
+          <p class="text-gray-500 dark:text-gray-400">Total Tareas</p>
+        </div>
+      </mat-card>
+
+      <mat-card class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex items-center space-x-4 hover:shadow-lg transition">
+        <div class="p-3 rounded-full bg-green-100 dark:bg-green-900">
+          <mat-icon class="text-green-600">check_circle</mat-icon>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">{{ stats?.completed }}</h2>
+          <p class="text-gray-500 dark:text-gray-400">Completadas</p>
+          <div class="mt-2 flex items-center space-x-2" *ngIf="stats?.total">
+            <mat-progress-bar mode="determinate" [value]="getCompletionPercentage()"></mat-progress-bar>
+            <span class="text-sm text-gray-600 dark:text-gray-400">{{ getCompletionPercentage() }}%</span>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex items-center space-x-4 hover:shadow-lg transition">
+        <div class="p-3 rounded-full bg-yellow-100 dark:bg-yellow-900">
+          <mat-icon class="text-yellow-600">hourglass_empty</mat-icon>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">{{ stats?.inProgress }}</h2>
+          <p class="text-gray-500 dark:text-gray-400">En Progreso</p>
+        </div>
+      </mat-card>
+
+      <mat-card class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex items-center space-x-4 hover:shadow-lg transition">
+        <div class="p-3 rounded-full bg-red-100 dark:bg-red-900">
+          <mat-icon class="text-red-600">schedule</mat-icon>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">{{ stats?.overdue }}</h2>
+          <p class="text-gray-500 dark:text-gray-400">Vencidas</p>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Gráficos estado y prioridad -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <mat-card class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+        <mat-card-title>Estado de las Tareas</mat-card-title>
+        <div class="grid grid-cols-2 gap-4 mt-4">
+          <div *ngIf="stats">
+            <div class="flex items-center space-x-3">
+              <span class="w-3 h-3 rounded-full bg-blue-600"></span>
+              <span class="text-gray-700 dark:text-gray-300">Por Hacer</span>
+              <span class="ml-auto text-gray-800 dark:text-gray-100">{{ stats.todo }}</span>
+            </div>
+            <div class="flex items-center space-x-3">
+              <span class="w-3 h-3 rounded-full bg-yellow-600"></span>
+              <span class="text-gray-700 dark:text-gray-300">En Progreso</span>
+              <span class="ml-auto text-gray-800 dark:text-gray-100">{{ stats.inProgress }}</span>
+            </div>
+            <div class="flex items-center space-x-3">
+              <span class="w-3 h-3 rounded-full bg-purple-600"></span>
+              <span class="text-gray-700 dark:text-gray-300">En Revisión</span>
+              <span class="ml-auto text-gray-800 dark:text-gray-100">{{ stats.inReview }}</span>
+            </div>
+            <div class="flex items-center space-x-3">
+              <span class="w-3 h-3 rounded-full bg-green-600"></span>
+              <span class="text-gray-700 dark:text-gray-300">Completadas</span>
+              <span class="ml-auto text-gray-800 dark:text-gray-100">{{ stats.completed }}</span>
+            </div>
+            <div class="flex items-center space-x-3">
+              <span class="w-3 h-3 rounded-full bg-red-600"></span>
+              <span class="text-gray-700 dark:text-gray-300">Canceladas</span>
+              <span class="ml-auto text-gray-800 dark:text-gray-100">{{ stats.cancelled }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+        <mat-card-title>Prioridades</mat-card-title>
+        <div class="grid grid-cols-2 gap-4 mt-4">
+          <div *ngIf="stats">
+            <div class="flex items-center space-x-3">
+              <span class="w-3 h-3 rounded-full bg-blue-900"></span>
+              <span class="text-gray-700 dark:text-gray-300">Urgente</span>
+              <span class="ml-auto text-gray-800 dark:text-gray-100">{{ stats.urgentPriority }}</span>
+            </div>
+            <div class="flex items-center space-x-3">
+              <span class="w-3 h-3 rounded-full bg-red-600"></span>
+              <span class="text-gray-700 dark:text-gray-300">Alta</span>
+              <span class="ml-auto text-gray-800 dark:text-gray-100">{{ stats.highPriority }}</span>
+            </div>
+            <div class="flex items-center space-x-3">
+              <span class="w-3 h-3 rounded-full bg-yellow-600"></span>
+              <span class="text-gray-700 dark:text-gray-300">Media</span>
+              <span class="ml-auto text-gray-800 dark:text-gray-100">{{ stats.mediumPriority }}</span>
+            </div>
+            <div class="flex items-center space-x-3">
+              <span class="w-3 h-3 rounded-full bg-green-600"></span>
+              <span class="text-gray-700 dark:text-gray-300">Baja</span>
+              <span class="ml-auto text-gray-800 dark:text-gray-100">{{ stats.lowPriority }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Tareas Recientes -->
+    <mat-card *ngIf="recentTasks.length" class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+      <mat-card-title class="flex justify-between items-center">
+        <span>Tareas Recientes</span>
+        <button mat-button color="primary" routerLink="/tasks">Ver todas <mat-icon>arrow_forward</mat-icon></button>
+      </mat-card-title>
+      <div class="divide-y divide-gray-200 dark:divide-gray-700 mt-4">
+        <div *ngFor="let task of recentTasks" class="py-3">
+          <h3 class="font-medium text-gray-800 dark:text-gray-200">{{ task.title }}</h3>
+          <p class="text-gray-500 dark:text-gray-400 text-sm">{{ task.description }}</p>
+          <div class="flex items-center space-x-3 mt-2 text-sm">
+            <span class="px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700">{{ getStatusLabel(task.status) }}</span>
+            <span class="px-2 py-0.5 rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-700">{{ getPriorityLabel(task.priority) }}</span>
+            <span *ngIf="task.dueDate" class="flex items-center text-gray-500 dark:text-gray-400 gap-1">
+              <mat-icon>schedule</mat-icon>{{ formatDate(task.dueDate!) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Acciones rápidas -->
+    <div>
+      <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Acciones Rápidas</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <button mat-raised-button color="primary" routerLink="/tasks/new" class="w-full">+ Nueva Tarea</button>
+        <button mat-raised-button routerLink="/tasks" class="w-full">Ver Tareas</button>
+        <button mat-raised-button routerLink="/profile" class="w-full">Mi Perfil</button>
+      </div>
+    </div>
+  </main>
+</div>
