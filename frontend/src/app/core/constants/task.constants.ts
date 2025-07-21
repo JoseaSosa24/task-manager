@@ -6,7 +6,7 @@ export enum TaskStatus {
   IN_PROGRESS = 'IN_PROGRESS', 
   IN_REVIEW = 'IN_REVIEW',
   COMPLETED = 'DONE', // Mapea a 'DONE' del backend
-  CANCELLED = 'CANCELLED'
+  //CANCELLED = 'CANCELLED'
 }
 
 // Enum para prioridades de tareas
@@ -39,7 +39,7 @@ export const TASK_STATUS_LABELS = {
   [TaskStatus.IN_PROGRESS]: 'In Progress',
   [TaskStatus.IN_REVIEW]: 'In Review',
   [TaskStatus.COMPLETED]: 'Completed',
-  [TaskStatus.CANCELLED]: 'Cancelled'
+ /*  [TaskStatus.CANCELLED]: 'Cancelled' */
 };
 
 export const TASK_PRIORITY_LABELS = {
@@ -55,7 +55,7 @@ export const TASK_STATUS_CLASSES = {
   [TaskStatus.IN_PROGRESS]: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
   [TaskStatus.IN_REVIEW]: 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400',
   [TaskStatus.COMPLETED]: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
-  [TaskStatus.CANCELLED]: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+ /*  [TaskStatus.CANCELLED]: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' */
 };
 
 // Clases CSS para prioridades

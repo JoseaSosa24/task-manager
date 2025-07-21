@@ -1,0 +1,54 @@
+<mat-card class="mb-6">
+  <mat-card-content>
+    <form [formGroup]="filtersForm" class="space-y-4">
+
+      <!-- Barra de búsqueda -->
+      <mat-form-field appearance="outline" class="w-full max-w-md">
+        <mat-label>Buscar tareas</mat-label>
+        <input matInput formControlName="search" placeholder="Título o descripción">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <!-- Filtros de estado y prioridad -->
+      <div class="flex flex-wrap gap-4 items-center">
+        <mat-form-field appearance="outline" class="flex-1 min-w-[180px]">
+          <mat-label>Estados</mat-label>
+          <mat-select formControlName="status" multiple>
+            <mat-option value="TODO">Por Hacer</mat-option>
+            <mat-option value="IN_PROGRESS">En Progreso</mat-option>
+            <mat-option value="IN_REVIEW">En Revisión</mat-option>
+            <mat-option value="DONE">Completadas</mat-option>
+            <!-- <mat-option value="CANCELLED">Canceladas</mat-option> -->
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="flex-1 min-w-[180px]">
+          <mat-label>Prioridades</mat-label>
+          <mat-select formControlName="priority" multiple>
+            <mat-option value="LOW">Baja</mat-option>
+            <mat-option value="MEDIUM">Media</mat-option>
+            <mat-option value="HIGH">Alta</mat-option>
+            <mat-option value="URGENT">Urgente</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-icon-button type="button" (click)="clearFilters()">
+          <mat-icon>clear</mat-icon>
+        </button>
+      </div>
+
+      <!-- Chips de filtros activos -->
+      <div *ngIf="hasActiveFilters()" class="flex flex-wrap gap-2 pt-2 border-t">
+        <span class="font-medium text-gray-600">Filtros activos:</span>
+
+        <mat-chip *ngFor="let s of selectedStatuses" (removed)="removeStatusFilter(s)">
+          {{ getStatusLabel(s) }} <mat-icon matChipRemove>cancel</mat-icon>
+        </mat-chip>
+
+        <mat-chip *ngFor="let p of selectedPriorities" (removed)="removePriorityFilter(p)">
+          {{ getPriorityLabel(p) }} <mat-icon matChipRemove>cancel</mat-icon>
+        </mat-chip>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

@@ -137,8 +137,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   getUrgentTasks(): Task[] {
     return this.recentTasks.filter(task =>
       task.priority === 'URGENT' &&
-      task.status !== 'DONE' &&
-      task.status !== 'CANCELLED'
+      task.status !== 'DONE' 
     );
   }
 
@@ -172,7 +171,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       'IN_PROGRESS': 'En Progreso',
       'IN_REVIEW': 'En Revisión',
       'DONE': 'Completada',
-      'CANCELLED': 'Cancelada'
     };
     return labels[status] || status;
   }

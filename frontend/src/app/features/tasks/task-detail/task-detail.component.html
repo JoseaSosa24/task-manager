@@ -1,0 +1,105 @@
+<div class="task-detail-container" *ngIf="task">
+  <div class="page-header">
+    <div class="header-content">
+      <button mat-icon-button (click)="goBack()" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1 class="page-title">{{ task.title }}</h1>
+      <button mat-icon-button [matMenuTriggerFor]="taskMenu" class="menu-button">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #taskMenu="matMenu">
+        <button mat-menu-item [routerLink]="['/tasks', task.id, 'edit']">
+          <mat-icon>edit</mat-icon>
+          <span>{{ labels.EDIT }}</span>
+        </button>
+        <button mat-menu-item (click)="deleteTask()">
+          <mat-icon>delete</mat-icon>
+          <span>{{ labels.DELETE }}</span>
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+
+  <div class="task-content">
+    <mat-card class="info-card">
+      <mat-card-content>
+        <div class="task-badges">
+          <mat-chip [class]="'status-' + task.status.toLowerCase()">
+            {{ getStatusLabel(task.status) }}
+          </mat-chip>
+          <mat-chip [class]="'priority-' + task.priority.toLowerCase()">
+            {{ getPriorityLabel(task.priority) }}
+          </mat-chip>
+        </div>
+        <div class="task-description">
+          <h3>Descripción</h3><p>{{ task.description }}</p>
+        </div>
+        <div class="task-meta">
+          <div class="meta-item">
+            <mat-icon>schedule</mat-icon>
+            <div><span class="meta-label">Fecha de vencimiento</span>
+              <span class="meta-value">{{ formatDate(task.dueDate) }}</span>
+            </div>
+          </div>
+          <div class="meta-item" *ngIf="task.assignee">
+            <mat-icon>person</mat-icon>
+            <div>
+              <span class="meta-label">Asignado a</span>
+              <span class="meta-value">{{ task.assignee.firstName }} {{ task.assignee.lastName }}</span>
+            </div>
+          </div>
+          <div class="meta-item">
+            <mat-icon>person_outline</mat-icon>
+            <div>
+              <span class="meta-label">Creado por</span>
+              <span class="meta-value">{{ task.creator.firstName }} {{ task.creator.lastName }}</span>
+            </div>
+          </div>
+          <div class="meta-item">
+            <mat-icon>access_time</mat-icon>
+            <div>
+              <span class="meta-label">Fecha de creación</span>
+              <span class="meta-value">{{ formatDate(task.createdAt) }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="actions-card">
+      <mat-card-header><mat-card-title>Cambiar Estado</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="status-actions">
+          <button mat-raised-button color="accent"
+            *ngIf="task.status === 'TODO'" (click)="changeStatus('IN_PROGRESS')">
+            <mat-icon>play_arrow</mat-icon> Iniciar Tarea
+          </button>
+          <button mat-raised-button color="primary"
+            *ngIf="task.status === 'IN_PROGRESS'" (click)="changeStatus('DONE')">
+            <mat-icon>check_circle</mat-icon> Completar Tarea
+          </button>
+          <button mat-stroked-button
+            *ngIf="task.status === 'IN_PROGRESS'" (click)="changeStatus('TODO')">
+            <mat-icon>pause</mat-icon> Pausar Tarea
+          </button>
+          <button mat-stroked-button
+            *ngIf="task.status === 'DONE'" (click)="changeStatus('IN_PROGRESS')">
+            <mat-icon>replay</mat-icon> Reabrir Tarea
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+
+<div *ngIf="!task" class="loading-container">
+  <mat-card>
+    <mat-card-content>
+      <div class="loading-content">
+        <mat-icon class="loading-icon">refresh</mat-icon>
+        <p>{{ labels.LOADING }}</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

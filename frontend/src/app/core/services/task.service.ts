@@ -185,7 +185,7 @@ export class TaskService {
       todo: tasks.filter(t => t.status === 'TODO').length,
       inProgress: tasks.filter(t => t.status === 'IN_PROGRESS').length,
       inReview: tasks.filter(t => t.status === 'IN_REVIEW').length,
-      cancelled: tasks.filter(t => t.status === 'CANCELLED').length,
+      //cancelled: tasks.filter(t => t.status === 'CANCELLED').length,
       overdue: tasks.filter(t => 
         t.dueDate && new Date(t.dueDate) < new Date() && t.status !== 'DONE'
       ).length,

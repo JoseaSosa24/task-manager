@@ -1,6 +1,6 @@
 // frontend/src/app/core/models/task.interface.ts
 
-export type TaskStatusType = 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE' | 'CANCELLED';
+export type TaskStatusType = 'TODO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE' ;
 export type TaskPriorityType = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
 
 export interface Task {
@@ -45,7 +45,7 @@ export interface TaskStats {
   todo: number;
   inProgress: number;
   inReview: number;
-  cancelled: number;
+  //cancelled: number;
   overdue: number;
   lowPriority: number;
   mediumPriority: number;
