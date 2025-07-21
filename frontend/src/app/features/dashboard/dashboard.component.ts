@@ -1,7 +1,7 @@
 // frontend/src/app/features/dashboard/dashboard.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -27,8 +27,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   constructor(
     private taskService: TaskService,
-    private authService: AuthService
-  ) {}
+    private authService: AuthService,
+    private router: Router
+
+  ) { }
 
   ngOnInit(): void {
     this.loadUserProfile();
@@ -133,9 +135,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   getUrgentTasks(): Task[] {
-    return this.recentTasks.filter(task => 
-      task.priority === 'URGENT' && 
-      task.status !== 'DONE' && 
+    return this.recentTasks.filter(task =>
+      task.priority === 'URGENT' &&
+      task.status !== 'DONE' &&
       task.status !== 'CANCELLED'
     );
   }
@@ -167,7 +169,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   getStatusText(status: TaskStatusType): string {
     const labels = {
       'TODO': 'Por Hacer',
-      'IN_PROGRESS': 'En Progreso', 
+      'IN_PROGRESS': 'En Progreso',
       'IN_REVIEW': 'En Revisión',
       'DONE': 'Completada',
       'CANCELLED': 'Cancelada'
@@ -179,7 +181,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const labels = {
       'LOW': 'Baja',
       'MEDIUM': 'Media',
-      'HIGH': 'Alta', 
+      'HIGH': 'Alta',
       'URGENT': 'Urgente'
     };
     return labels[priority] || priority;
@@ -213,4 +215,63 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const year = now.getFullYear();
     return `${days[now.getDay()]} ${day}/${month}/${year}`;
   }
+
+  goToTask(taskId: number): void {
+    this.router.navigate(['/tasks', taskId]);
+  }
+
+  goToTasksByStatus(status: string): void {
+    this.router.navigate(['/tasks'], {
+      queryParams: { status: status === 'ALL' ? null : status }
+    });
+  }
+
+  getTodayTasks(): number {
+    const today = new Date().toDateString();
+    return this.recentTasks.filter(task =>
+      task.dueDate && new Date(task.dueDate).toDateString() === today
+    ).length;
+  }
+  openTaskDetail(task: Task): void {
+    // Abrir modal o navegar a detalle
+    this.router.navigate(['/tasks', task.id]);
+  }
+
+  editTask(task: Task): void {
+    this.showTaskMenu = null;
+    // Abrir modal de edición o navegar
+    this.router.navigate(['/tasks', task.id, 'edit']);
+  }
+
+  toggleTaskStatus(task: Task): void {
+    this.showTaskMenu = null;
+    const newStatus = task.status === 'DONE' ? 'TODO' : 'DONE';
+
+    this.taskService.updateTask(task.id, { status: newStatus }).subscribe({
+      next: () => {
+        task.status = newStatus as any;
+        // Opcional: mostrar mensaje de éxito
+      },
+      error: (error) => {
+        console.error('Error updating task:', error);
+      }
+    });
+  }
+
+  deleteTask(task: Task): void {
+    this.showTaskMenu = null;
+
+    if (confirm('¿Estás seguro de que quieres eliminar esta tarea?')) {
+      this.taskService.deleteTask(task.id).subscribe({
+        next: () => {
+          this.recentTasks = this.recentTasks.filter(t => t.id !== task.id);
+          // Opcional: mostrar mensaje de éxito
+        },
+        error: (error) => {
+          console.error('Error deleting task:', error);
+        }
+      });
+    }
+  }
 }
+

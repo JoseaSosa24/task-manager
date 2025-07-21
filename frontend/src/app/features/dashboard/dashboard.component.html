@@ -52,8 +52,8 @@
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <!-- Total Tasks Card -->
-      <div
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
+      <div (click)="goToTasksByStatus('ALL')"
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all cursor-pointer">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Total de Tareas</p>
@@ -69,8 +69,8 @@
       </div>
 
       <!-- Completed Tasks Card -->
-      <div
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
+      <div (click)="goToTasksByStatus('DONE')"
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md hover:border-green-300 dark:hover:border-green-600 transition-all cursor-pointer">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Completadas</p>
@@ -95,8 +95,8 @@
       </div>
 
       <!-- In Progress Tasks Card -->
-      <div
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
+      <div (click)="goToTasksByStatus('IN_PROGRESS')"
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md hover:border-yellow-300 dark:hover:border-yellow-600 transition-all cursor-pointer">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">En Progreso</p>
@@ -121,8 +121,8 @@
       </div>
 
       <!-- Pending Tasks Card -->
-      <div
-        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
+      <div (click)="goToTasksByStatus('TODO')"
+        class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md hover:border-red-300 dark:hover:border-red-600 transition-all cursor-pointer">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Pendientes</p>
@@ -181,107 +181,116 @@
               <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
 
-            <div *ngIf="!loading && recentTasks.length > 0" class="space-y-4">
-              <div *ngFor="let task of recentTasks.slice(0, 6)"
-                class="flex items-start space-x-4 p-4 rounded-lg border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer group">
+            <!-- Task Item mejorado -->
+            <div *ngFor="let task of recentTasks.slice(0, 6)"
+              class="relative flex items-start space-x-4 p-4 rounded-lg border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 group">
 
-                <!-- Task Status Indicator -->
-                <div class="flex-shrink-0 mt-1">
-                  <div
-                    class="w-6 h-6 border-2 rounded-full flex items-center justify-center transition-all duration-200"
-                    [class.bg-green-500]="isCompleted(task)" [class.border-green-500]="isCompleted(task)"
-                    [class.border-gray-300]="!isCompleted(task)" [class.dark:border-gray-500]="!isCompleted(task)">
-                    <svg *ngIf="isCompleted(task)" class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <!-- Task Status Indicator -->
+              <div class="flex-shrink-0 mt-1">
+                <div class="w-6 h-6 border-2 rounded-full flex items-center justify-center transition-all duration-200"
+                  [class.bg-green-500]="isCompleted(task)" [class.border-green-500]="isCompleted(task)"
+                  [class.border-gray-300]="!isCompleted(task)" [class.dark:border-gray-500]="!isCompleted(task)">
+                  <svg *ngIf="isCompleted(task)" class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Task Content - Clickeable Area -->
+              <div (click)="openTaskDetail(task)" class="flex-1 min-w-0 cursor-pointer">
+                <h3
+                  class="text-sm font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  {{ task.title }}
+                </h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">
+                  {{ task.description }}
+                </p>
+
+                <!-- Task Meta -->
+                <div class="flex items-center space-x-3 text-xs">
+                  <span [ngClass]="getPriorityClasses(task.priority)">
+                    {{ getPriorityText(task.priority) }}
+                  </span>
+                  <span [ngClass]="getStatusClasses(task.status)">
+                    {{ getStatusText(task.status) }}
+                  </span>
+                  <span class="text-gray-500 dark:text-gray-400 flex items-center">
+                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd"
+                        d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                        clip-rule="evenodd"></path>
+                    </svg>
+                    {{ task.createdAt | date:'MMM dd' }}
+                  </span>
+                  <span *ngIf="isOverdue(task)" class="text-red-600 dark:text-red-400 flex items-center font-medium">
+                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd"
+                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                        clip-rule="evenodd"></path>
+                    </svg>
+                    Vencida
+                  </span>
+                </div>
+              </div>
+
+              <!-- Task Actions - Improved Menu -->
+              <div class="flex-shrink-0 relative">
+                <button (click)="toggleTaskMenu($event, task)"
+                  class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-full transition-all duration-200 opacity-0 group-hover:opacity-100">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z">
+                    </path>
+                  </svg>
+                </button>
+
+                <!-- Improved Task Menu -->
+                <div *ngIf="showTaskMenu === task.id"
+                  class="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-700 rounded-lg shadow-xl border border-gray-200 dark:border-gray-600 z-50 py-1">
+
+                  <button (click)="editTask(task)"
+                    class="w-full px-4 py-3 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 flex items-center space-x-3 transition-colors">
+                    <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path
+                        d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z">
+                      </path>
+                    </svg>
+                    <span>Editar</span>
+                  </button>
+
+                  <button (click)="toggleTaskStatus(task)" *ngIf="!isCompleted(task)"
+                    class="w-full px-4 py-3 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 flex items-center space-x-3 transition-colors">
+                    <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd"
                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                         clip-rule="evenodd"></path>
                     </svg>
-                  </div>
-                </div>
+                    <span>Marcar como completada</span>
+                  </button>
 
-                <!-- Task Content -->
-                <div class="flex-1 min-w-0">
-                  <h3
-                    class="text-sm font-semibold text-gray-900 dark:text-white mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                    {{ task.title }}
-                  </h3>
-                  <p class="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">
-                    {{ task.description }}
-                  </p>
+                  <button (click)="toggleTaskStatus(task)" *ngIf="isCompleted(task)"
+                    class="w-full px-4 py-3 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 flex items-center space-x-3 transition-colors">
+                    <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                        clip-rule="evenodd"></path>
+                    </svg>
+                    <span>Marcar como pendiente</span>
+                  </button>
 
-                  <!-- Task Meta -->
-                  <div class="flex items-center space-x-3 text-xs">
-                    <span [ngClass]="getPriorityClasses(task.priority)">
-                      {{ getPriorityText(task.priority) }}
-                    </span>
-                    <span [ngClass]="getStatusClasses(task.status)">
-                      {{ getStatusText(task.status) }}
-                    </span>
-                    <span class="text-gray-500 dark:text-gray-400 flex items-center">
-                      <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                          d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                          clip-rule="evenodd"></path>
-                      </svg>
-                      {{ task.createdAt | date:'MMM dd' }}
-                    </span>
-                    <span *ngIf="isOverdue(task)" class="text-red-600 dark:text-red-400 flex items-center font-medium">
-                      <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                          d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                          clip-rule="evenodd"></path>
-                      </svg>
-                      Vencida
-                    </span>
-                  </div>
-                </div>
+                  <div class="border-t border-gray-200 dark:border-gray-600 my-1"></div>
 
-                <!-- Task Actions -->
-                <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div class="relative">
-                    <button (click)="toggleTaskMenu($event, task)"
-                      class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-all">
-                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                          d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z">
-                        </path>
-                      </svg>
-                    </button>
-
-                    <!-- Task Menu -->
-                    <div *ngIf="showTaskMenu === task.id"
-                      class="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-gray-700 rounded-lg shadow-lg border border-gray-200 dark:border-gray-600 z-10">
-                      <div class="py-1">
-                        <button
-                          class="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center space-x-2">
-                          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path
-                              d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z">
-                            </path>
-                          </svg>
-                          <span>Editar</span>
-                        </button>
-                        <button
-                          class="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center space-x-2">
-                          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clip-rule="evenodd"></path>
-                          </svg>
-                          <span>Marcar como completada</span>
-                        </button>
-                        <button
-                          class="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center space-x-2">
-                          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                              d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                              clip-rule="evenodd"></path>
-                          </svg>
-                          <span>Eliminar</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  <button (click)="deleteTask(task)"
+                    class="w-full px-4 py-3 text-left text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center space-x-3 transition-colors">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd"
+                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                        clip-rule="evenodd"></path>
+                    </svg>
+                    <span>Eliminar</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -309,24 +318,40 @@
       <!-- Sección Quick Actions corregida -->
       <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Acciones Rápidas</h3>
-        <div class="space-y-3">
+        <div class="grid grid-cols-2 gap-3">
           <button routerLink="/tasks"
-            class="w-full flex items-center justify-center space-x-3 p-4 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors group">
-            <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+            class="flex items-center justify-center space-x-2 p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd"
                 d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
                 clip-rule="evenodd"></path>
             </svg>
-            <span class="font-medium">Crear Nueva Tarea</span>
+            <span class="font-medium text-sm">Nueva</span>
           </button>
 
           <button routerLink="/tasks"
-            class="w-full flex items-center justify-center space-x-3 p-4 bg-gray-50 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group">
-            <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+            class="flex items-center justify-center space-x-2 p-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <span class="font-medium">Ver Todas las Tareas</span>
+            <span class="font-medium text-sm">Ver Todo</span>
           </button>
+        </div>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Tareas de Hoy</h3>
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ getTodayTasks() }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Programadas para hoy</p>
+          </div>
+          <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd"
+                d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                clip-rule="evenodd"></path>
+            </svg>
+          </div>
         </div>
       </div>
     </div>
