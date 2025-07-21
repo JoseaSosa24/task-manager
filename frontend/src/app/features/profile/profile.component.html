@@ -1,0 +1,97 @@
+<div class="max-w-3xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
+  <div class="text-center mb-8">
+    <h1 class="text-3xl font-semibold text-gray-800 dark:text-gray-100">Mi Perfil</h1>
+    <p class="text-gray-500 dark:text-gray-400">Gestiona tu información personal y configuración de cuenta</p>
+  </div>
+
+  <div *ngIf="userProfile; else loadingBlock">
+    <div class="flex items-center space-x-6 mb-8">
+      <div class="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center text-3xl font-bold">
+        {{ userProfile.initials }}
+      </div>
+      <div>
+        <p class="text-xl font-medium text-gray-800 dark:text-gray-200">{{ userProfile.fullName }}</p>
+        <p class="text-gray-500 dark:text-gray-400">{{ userProfile.email }}</p>
+        <p class="text-gray-500 dark:text-gray-400">@{{ userProfile.username }}</p>
+        <span class="inline-block mt-1 px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm">{{ userProfile.role }}</span>
+      </div>
+    </div>
+
+    <mat-tab-group>
+      <mat-tab label="Personal">
+        <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="space-y-4 p-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <mat-form-field appearance="fill" class="w-full">
+              <mat-label>Nombre</mat-label>
+              <input matInput formControlName="firstName" />
+              <mat-error *ngIf="profileForm.get('firstName')?.invalid">
+                {{ getFieldError(profileForm, 'firstName') }}
+              </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="fill" class="w-full">
+              <mat-label>Apellido</mat-label>
+              <input matInput formControlName="lastName" />
+              <mat-error *ngIf="profileForm.get('lastName')?.invalid">
+                {{ getFieldError(profileForm, 'lastName') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <mat-form-field appearance="fill" class="w-full">
+              <mat-label>Usuario</mat-label>
+              <input matInput formControlName="username" />
+              <mat-error *ngIf="profileForm.get('username')?.invalid">
+                {{ getFieldError(profileForm, 'username') }}
+              </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="fill" class="w-full">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" />
+              <mat-error *ngIf="profileForm.get('email')?.invalid">
+                {{ getFieldError(profileForm, 'email') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <button mat-raised-button color="primary" class="mt-4" [disabled]="profileForm.invalid || updatingProfile">
+            {{ updatingProfile ? 'Guardando...' : 'Guardar Cambios' }}
+          </button>
+        </form>
+      </mat-tab>
+
+      <mat-tab label="Seguridad">
+        <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="space-y-4 p-4">
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Contraseña Actual</mat-label>
+            <input matInput type="password" formControlName="oldPassword" />
+            <mat-error *ngIf="passwordForm.get('oldPassword')?.invalid">
+              {{ getFieldError(passwordForm, 'oldPassword') }}
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Nueva Contraseña</mat-label>
+            <input matInput type="password" formControlName="newPassword" />
+            <mat-error *ngIf="passwordForm.get('newPassword')?.invalid">
+              {{ getFieldError(passwordForm, 'newPassword') }}
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Confirmar Contraseña</mat-label>
+            <input matInput type="password" formControlName="confirmPassword" />
+            <mat-error *ngIf="passwordForm.get('confirmPassword')?.invalid || passwordForm.hasError('passwordMismatch')">
+              {{ getFieldError(passwordForm, 'confirmPassword') }}
+            </mat-error>
+          </mat-form-field>
+          <button mat-raised-button color="primary" class="mt-4" [disabled]="passwordForm.invalid || changingPassword">
+            {{ changingPassword ? 'Cambiando...' : 'Cambiar Contraseña' }}
+          </button>
+        </form>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+  <ng-template #loadingBlock>
+    <div class="text-center text-gray-500 dark:text-gray-400">
+      <p>Cargando perfil...</p>
+    </div>
+  </ng-template>
+</div>
