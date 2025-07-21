@@ -1,0 +1,63 @@
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" (click)="cancel()">
+  <div class="bg-white dark:bg-gray-800 rounded-lg w-full max-w-md max-h-[90vh] overflow-auto shadow-lg" (click)="$event.stopPropagation()">
+    <div class="flex justify-between items-center border-b p-4">
+      <h2 class="text-xl font-semibold">{{ isEditing ? 'Editar Tarea' : 'Nueva Tarea' }}</h2>
+      <button mat-icon-button (click)="cancel()"><mat-icon>close</mat-icon></button>
+    </div>
+
+    <form [formGroup]="taskForm" (ngSubmit)="onSubmit()" class="p-4 space-y-4">
+      <mat-form-field appearance="fill" class="w-full">
+        <mat-label>Título</mat-label>
+        <input matInput formControlName="title" placeholder="Ingrese título">
+        <mat-error *ngIf="taskForm.get('title')?.hasError('required')">El título es requerido</mat-error>
+        <mat-error *ngIf="taskForm.get('title')?.hasError('maxlength')">Máx 100 caracteres</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="w-full">
+        <mat-label>Descripción</mat-label>
+        <textarea matInput formControlName="description" rows="4" placeholder="Describa la tarea"></textarea>
+        <mat-error *ngIf="taskForm.get('description')?.hasError('required')">La descripción es requerida</mat-error>
+      </mat-form-field>
+
+      <div class="flex gap-4">
+        <mat-form-field appearance="fill" class="flex-1">
+          <mat-label>Prioridad</mat-label>
+          <mat-select formControlName="priority">
+            <mat-option value="LOW">Baja</mat-option>
+            <mat-option value="MEDIUM">Media</mat-option>
+            <mat-option value="HIGH">Alta</mat-option>
+            <mat-option value="URGENT">Urgente</mat-option>
+          </mat-select>
+          <mat-error *ngIf="taskForm.get('priority')?.hasError('required')">Prioridad requerida</mat-error>
+        </mat-form-field>
+
+        <mat-form-field *ngIf="isEditing" appearance="fill" class="flex-1">
+          <mat-label>Estado</mat-label>
+          <mat-select formControlName="status">
+            <mat-option value="TODO">Por Hacer</mat-option>
+            <mat-option value="IN_PROGRESS">En Progreso</mat-option>
+            <mat-option value="IN_REVIEW">En Revisión</mat-option>
+            <mat-option value="DONE">Completada</mat-option>
+            <mat-option value="CANCELLED">Cancelada</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="fill" class="w-full">
+        <mat-label>Fecha Vencimiento</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="dueDate">
+        <mat-hint>Opcional</mat-hint>
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+      <div class="flex justify-end gap-2 pt-2 border-t">
+        <button mat-button type="button" (click)="cancel()">Cancelar</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="taskForm.invalid || saving">
+          <mat-icon *ngIf="saving">hourglass_empty</mat-icon>
+          {{ saving ? (isEditing ? 'Actualizando...' : 'Creando...') : (isEditing ? 'Actualizar' : 'Crear') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

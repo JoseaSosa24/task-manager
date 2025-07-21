@@ -35,7 +35,7 @@ export const UI_LABELS = {
   IN_PROGRESS: 'En Progreso',
   IN_REVIEW: 'En Revisión',
   DONE: 'Completada',
-  CANCELLED: 'Cancelada',
+  //CANCELLED: 'Cancelada',
   
   // Priority
   LOW: 'Baja',
