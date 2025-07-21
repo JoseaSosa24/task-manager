@@ -1,0 +1,65 @@
+<!-- ===== src/app/shared/components/form-field/form-field.component.html ===== -->
+<!-- Input Field -->
+<mat-form-field *ngIf="fieldType !== 'select'" 
+                appearance="outline" 
+                class="w-full">
+  <mat-label class="text-gray-700 dark:text-gray-300 font-medium">{{ label }}</mat-label>
+  
+  <mat-icon *ngIf="prefixIcon" matPrefix class="text-gray-500 dark:text-gray-400 mr-2">
+    {{ prefixIcon }}
+  </mat-icon>
+  
+  <input matInput
+         [type]="inputType"
+         [placeholder]="placeholder"
+         [required]="required"
+         [disabled]="disabled"
+         [value]="value"
+         (input)="onInput($event)"
+         (blur)="onBlur()"
+         class="text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-colors">
+  
+  <mat-icon *ngIf="fieldType === 'password'" 
+            matSuffix 
+            (click)="togglePassword()"
+            class="cursor-pointer text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 hover:scale-110">
+    {{ showPassword ? 'visibility_off' : 'visibility' }}
+  </mat-icon>
+  
+  <mat-icon *ngIf="suffixIcon && fieldType !== 'password'" 
+            matSuffix 
+            class="text-gray-500 dark:text-gray-400">
+    {{ suffixIcon }}
+  </mat-icon>
+  
+  <mat-error *ngIf="hasErrors" class="text-red-500 dark:text-red-400 font-medium">
+    {{ errorMessage }}
+  </mat-error>
+</mat-form-field>
+
+<!-- Select Field -->
+<mat-form-field *ngIf="fieldType === 'select'" 
+                appearance="outline" 
+                class="w-full">
+  <mat-label class="text-gray-700 dark:text-gray-300 font-medium">{{ label }}</mat-label>
+  
+  <mat-icon *ngIf="prefixIcon" matPrefix class="text-gray-500 dark:text-gray-400 mr-2">
+    {{ prefixIcon }}
+  </mat-icon>
+  
+  <mat-select [value]="value"
+              [disabled]="disabled"
+              (selectionChange)="onSelectionChange($event)"
+              class="text-gray-900 dark:text-white">
+    <mat-option *ngFor="let option of selectOptions" 
+                [value]="option.value"
+                [disabled]="option.disabled"
+                class="hover:bg-blue-50 dark:hover:bg-gray-700">
+      {{ option.label }}
+    </mat-option>
+  </mat-select>
+  
+  <mat-error *ngIf="hasErrors" class="text-red-500 dark:text-red-400 font-medium">
+    {{ errorMessage }}
+  </mat-error>
+</mat-form-field>

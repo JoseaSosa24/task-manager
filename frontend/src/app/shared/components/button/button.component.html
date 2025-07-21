@@ -1,0 +1,37 @@
+<!-- ===== src/app/shared/components/button/button.component.html ===== -->
+<button *ngIf="!routerLink; else linkTemplate"
+        [type]="type"
+        [disabled]="disabled || loading"
+        [ngClass]="buttonClasses"
+        class="inline-flex items-center justify-center gap-2 font-semibold rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2">
+  <ng-container [ngTemplateOutlet]="buttonContent"></ng-container>
+</button>
+
+<ng-template #linkTemplate>
+  <a [routerLink]="routerLink"
+     [ngClass]="buttonClasses"
+     class="inline-flex items-center justify-center gap-2 font-semibold rounded-lg transition-all duration-200 hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 no-underline">
+    <ng-container [ngTemplateOutlet]="buttonContent"></ng-container>
+  </a>
+</ng-template>
+
+<ng-template #buttonContent>
+  <!-- Loading Spinner -->
+  <mat-spinner *ngIf="loading" diameter="20" class="!w-5 !h-5"></mat-spinner>
+  
+  <!-- Icon Left -->
+  <mat-icon *ngIf="icon && iconPosition === 'left' && !loading" class="text-current">
+    {{ icon }}
+  </mat-icon>
+  
+  <!-- Text -->
+  <span *ngIf="text">{{ loading ? 'Cargando...' : text }}</span>
+  
+  <!-- Icon Right -->
+  <mat-icon *ngIf="icon && iconPosition === 'right' && !loading" class="text-current">
+    {{ icon }}
+  </mat-icon>
+  
+  <!-- Slot -->
+  <ng-content></ng-content>
+</ng-template>
