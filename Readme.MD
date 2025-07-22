@@ -415,16 +415,18 @@ Este proyecto aprovechó herramientas de IA para optimizar el tiempo y calidad:
 
 ### **Tiempo Ahorrado Estimado**
 ```
-📊 Desarrollo sin IA: ~60 horas
-⚡ Desarrollo con IA: ~36 horas  
-💰 Ahorro: 24 horas (40% del tiempo total)
+📊 Tiempo estimado sin uso de IA: ~30 horas  
+⚡ Tiempo real con apoyo de IA: ~18 horas  
+💰 Ahorro estimado: 12 horas (40% del tiempo total)
 
 Desglose del ahorro:
-- Configuración inicial: 6h → 2h (67% ahorro)
-- CRUD operations: 15h → 8h (47% ahorro)
-- UI/UX components: 12h → 7h (42% ahorro)
-- Documentación: 4h → 2h (50% ahorro)
+- Configuración inicial: 4h → 1.5h (62% ahorro)
+- CRUD de tareas y usuarios: 10h → 6h (40% ahorro)
+- Componentes UI/UX: 8h → 5h (37% ahorro)
+- Documentación y planificación: 3h → 1.5h (50% ahorro)
+- Optimización general con IA: ~2h extra ahorradas
 
+🗓️ Tiempo total de desarrollo: 4 días de trabajo efectivo
 ```
 
 ### **Calidad Mejorada con IA**
