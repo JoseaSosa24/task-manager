@@ -1,34 +1,229 @@
-<div class="my-tasks-container">
+<div class="kanban-container">
   <!-- Header -->
-  <div class="page-header">
+  <div class="header-section">
     <div class="header-content">
-      <h1 class="page-title">{{ labels.MY_TASKS }}</h1>
-      <button mat-raised-button color="primary" routerLink="/tasks/new">
-        <mat-icon>add</mat-icon>
-        {{ labels.NEW_TASK }}
-      </button>
+      <div class="header-title">
+        <mat-icon class="title-icon">assignment_ind</mat-icon>
+        <div>
+          <h1>Mis Tareas</h1>
+          <p>Gestiona tus tareas con drag & drop</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button mat-icon-button (click)="refreshBoard()" matTooltip="Actualizar">
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button mat-raised-button 
+                color="primary" 
+                (click)="createNewTask()"
+                class="create-task-btn">
+          <mat-icon>add</mat-icon>
+          Nueva Tarea
+        </button>
+      </div>
     </div>
-    <p class="page-subtitle">Tareas asignadas a ti</p>
   </div>
 
-  <!-- Task Columns -->
-  <div class="kanban-board" *ngIf="tasks$ | async as tasks">
-    <!-- Repite columnas TODO / IN_PROGRESS / DONE con tu mismo markup -->
-    <!-- ... -->
+  <!-- Kanban Board -->
+  <div class="kanban-board" *ngIf="!loading; else loadingTemplate">
+    <div *ngFor="let column of columns; trackBy: trackByColumn" 
+         class="kanban-column"
+         [attr.data-status]="column.id">
+      
+      <!-- Column Header -->
+      <div class="column-header" [style.background-color]="column.bgColor">
+        <div class="column-info">
+          <div class="column-icon" [style.background-color]="column.color">
+            <mat-icon>{{ column.icon }}</mat-icon>
+          </div>
+          <div class="column-details">
+            <h3>{{ column.title }}</h3>
+            <span class="task-count">{{ column.tasks.length }} tarea{{ column.tasks.length !== 1 ? 's' : '' }}</span>
+          </div>
+        </div>
+        <button mat-icon-button 
+                class="add-task-btn" 
+                (click)="addTaskToColumn(column.id)"
+                [matTooltip]="'Agregar tarea a ' + column.title">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+
+      <!-- Tasks Container -->
+      <div class="tasks-container"
+           cdkDropList
+           [cdkDropListData]="column.tasks"
+           [cdkDropListConnectedTo]="getConnectedLists()"
+           (cdkDropListDropped)="onTaskDrop($event)"
+           [id]="'cdk-drop-list-' + column.id">
+        
+        <!-- Task Cards -->
+        <div *ngFor="let task of column.tasks; trackBy: trackByTask"
+             class="task-card"
+             cdkDrag
+             [cdkDragData]="task">
+          
+          <!-- Task Content -->
+          <div class="task-content">
+            <div class="task-header">
+              <h4 class="task-title" [matTooltip]="task.title">{{ task.title }}</h4>
+              <button mat-icon-button 
+                      class="task-menu-btn"
+                      [matMenuTriggerFor]="taskMenu"
+                      [matTooltip]="'Opciones para: ' + task.title">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              
+              <mat-menu #taskMenu="matMenu">
+                <button mat-menu-item (click)="editTask(task)">
+                  <mat-icon>edit</mat-icon>
+                  <span>Editar tarea</span>
+                </button>
+                <button mat-menu-item (click)="viewTaskDetails(task)">
+                  <mat-icon>visibility</mat-icon>
+                  <span>Ver detalles</span>
+                </button>
+                <button mat-menu-item (click)="duplicateTask(task)">
+                  <mat-icon>content_copy</mat-icon>
+                  <span>Duplicar</span>
+                </button>
+                <mat-divider></mat-divider>
+                <button mat-menu-item 
+                        (click)="deleteTask(task)"
+                        class="delete-menu-item">
+                  <mat-icon>delete</mat-icon>
+                  <span>Eliminar</span>
+                </button>
+              </mat-menu>
+            </div>
+
+            <p class="task-description" 
+               *ngIf="task.description"
+               [matTooltip]="task.description">
+              {{ task.description }}
+            </p>
+
+            <div class="task-meta">
+              <!-- Priority Chip -->
+              <mat-chip class="priority-chip" 
+                       [ngClass]="getPriorityClasses(task.priority)"
+                       [matTooltip]="'Prioridad: ' + getPriorityText(task.priority)">
+                {{ getPriorityText(task.priority) }}
+              </mat-chip>
+
+              <!-- Due Date -->
+              <div class="due-date" 
+                   *ngIf="task.dueDate"
+                   [ngClass]="{ 'overdue': isOverdue(task.dueDate) }"
+                   [matTooltip]="getDateTooltip(task.dueDate)">
+                <mat-icon class="date-icon">
+                  {{ isOverdue(task.dueDate) ? 'warning' : 'schedule' }}
+                </mat-icon>
+                <span>{{ formatDate(task.dueDate) }}</span>
+              </div>
+            </div>
+
+            <!-- Task Footer con información básica -->
+            <div class="task-footer">
+              <div class="task-info">
+                <span class="task-id">ID: {{ task.id }}</span>
+                <span class="task-created">{{ formatDate(task.createdAt) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty Column State -->
+        <div *ngIf="column.tasks.length === 0" class="empty-column">
+          <mat-icon class="empty-icon">{{ column.icon }}</mat-icon>
+          <p>No hay tareas en {{ column.title.toLowerCase() }}</p>
+          <button mat-stroked-button 
+                  (click)="addTaskToColumn(column.id)"
+                  color="primary">
+            <mat-icon>add</mat-icon>
+            Agregar primera tarea
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <!-- Loading State -->
+  <ng-template #loadingTemplate>
+    <div class="loading-state">
+      <div class="loading-spinner">
+        <mat-icon class="spin">refresh</mat-icon>
+      </div>
+      <p>Cargando tareas...</p>
+    </div>
+  </ng-template>
 
   <!-- Empty State -->
-  <div *ngIf="(tasks$ | async)?.length === 0" class="empty-state">
+  <div *ngIf="!loading && getTotalTasks() === 0" class="empty-state">
     <mat-card>
       <mat-card-content>
-        <mat-icon class="empty-icon">assignment_ind</mat-icon>
-        <h3>No tienes tareas asignadas</h3>
-        <p>Cuando tengas tareas asignadas, aparecerán aquí organizadas por estado</p>
-        <button mat-raised-button color="primary" routerLink="/tasks/new">
-          <mat-icon>add</mat-icon>
-          {{ labels.NEW_TASK }}
-        </button>
+        <mat-icon class="empty-icon-large">assignment_ind</mat-icon>
+        <h3>¡Bienvenido a tu tablero de tareas!</h3>
+        <p>
+          Aquí podrás gestionar todas tus tareas de forma visual.<br>
+          Cuando tengas tareas asignadas, aparecerán organizadas por estado.
+        </p>
+        <div class="empty-actions">
+          <button mat-raised-button 
+                  color="primary" 
+                  (click)="createNewTask()"
+                  class="mr-3">
+            <mat-icon>add</mat-icon>
+            Crear primera tarea
+          </button>
+          <button mat-stroked-button 
+                  routerLink="/tasks/list"
+                  color="primary">
+            <mat-icon>list</mat-icon>
+            Ver todas las tareas
+          </button>
+        </div>
       </mat-card-content>
     </mat-card>
   </div>
+
+  <!-- Quick Stats Bar -->
+  <div class="stats-bar" *ngIf="!loading && getTotalTasks() > 0">
+    <div class="stats-content">
+      <div class="stat-item">
+        <span class="stat-label">Total:</span>
+        <span class="stat-value">{{ getTotalTasks() }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Completadas:</span>
+        <span class="stat-value">{{ getCompletedTasks() }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">En progreso:</span>
+        <span class="stat-value">{{ getInProgressTasks() }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Progreso:</span>
+        <span class="stat-value">{{ getCompletionPercentage() }}%</span>
+      </div>
+    </div>
+  </div>
 </div>
+
+<!-- Floating Action Button for Mobile -->
+<button mat-fab 
+        class="floating-add-btn"
+        color="primary"
+        (click)="createNewTask()"
+        matTooltip="Crear nueva tarea"
+        *ngIf="isMobile()">
+  <mat-icon>add</mat-icon>
+</button>
+
+<!-- ========== TASK FORM MODAL ========== -->
+<app-task-form
+  *ngIf="showTaskForm"
+  [task]="selectedTask"
+  (taskSaved)="onTaskSaved($event)"
+  (cancelled)="onTaskFormCancelled()">
+</app-task-form>
