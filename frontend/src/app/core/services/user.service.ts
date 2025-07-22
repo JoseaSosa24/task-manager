@@ -41,9 +41,8 @@ export class UserService {
     }
 
 
-
     changePassword(passwordData: ChangePasswordRequest): Observable<string> {
-        return this.http.post<string>(API_ENDPOINTS.AUTH.CHANGE_PASSWORD, passwordData);
+        return this.http.post<string>(API_ENDPOINTS.USER.CHANGE_PASSWORD, passwordData);
     }
 
     getCurrentProfile(): UserProfile | null {

@@ -33,7 +33,7 @@ public class UserController {
 
     @PutMapping("/profile")
     public ResponseEntity<?> updateProfile(@Valid @RequestBody UserProfileDto profileDto,
-                                           Authentication authentication) {
+            Authentication authentication) {
         User updatedUser = userService.updateUserAndReturnEntity(authentication.getName(), profileDto);
         String newToken = jwtService.generateToken(updatedUser);
 
@@ -57,10 +57,16 @@ public class UserController {
 
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordDto changePasswordDto,
-                                            Authentication authentication) {
+            Authentication authentication) {
         userService.changePassword(authentication.getName(),
                 changePasswordDto.getOldPassword(),
                 changePasswordDto.getNewPassword());
-        return ResponseEntity.ok("Contraseña cambiada exitosamente");
+
+        // ✅ CAMBIO: Devolver un JSON en lugar de un String
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Contraseña cambiada exitosamente");
+        response.put("success", true);
+
+        return ResponseEntity.ok(response);
     }
 }

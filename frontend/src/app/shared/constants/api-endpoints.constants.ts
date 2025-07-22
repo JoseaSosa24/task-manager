@@ -5,7 +5,7 @@ export const API_ENDPOINTS = {
     LOGIN: `${environment.apiUrl}/auth/login`,
     REGISTER: `${environment.apiUrl}/auth/register`,
     REFRESH: `${environment.apiUrl}/auth/refresh`,
-    CHANGE_PASSWORD: `${environment.apiUrl}/auth/change-password`
+    //CHANGE_PASSWORD: `${environment.apiUrl}/auth/change-password`
   },
   TASKS: {
     BASE: `${environment.apiUrl}/tasks`,
@@ -20,6 +20,7 @@ export const API_ENDPOINTS = {
   USER: {
     BASE: `${environment.apiUrl}/user`,
     PROFILE: `${environment.apiUrl}/user/profile`,
-    BY_ID: (id: number) => `${environment.apiUrl}/user/${id}`
+    BY_ID: (id: number) => `${environment.apiUrl}/user/${id}`,
+    CHANGE_PASSWORD: `${environment.apiUrl}/user/change-password`
   }
 };
