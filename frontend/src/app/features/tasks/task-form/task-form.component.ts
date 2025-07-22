@@ -1,32 +1,16 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatIconModule } from '@angular/material/icon';
 
 import { TaskService } from '../../../core/services/task.service';
-import { Task, CreateTaskRequest, UpdateTaskRequest, TaskStatus, TaskPriority } from '../../../core/models/task.interface';
+import { Task, CreateTaskRequest, UpdateTaskRequest } from '../../../core/models/task.interface';
 
 @Component({
   selector: 'app-task-form',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatIconModule
+    ReactiveFormsModule
   ],
   templateUrl: './task-form.component.html',
 })
@@ -84,7 +68,7 @@ export class TaskFormComponent implements OnInit {
         title: formValue.title,
         description: formValue.description,
         priority: formValue.priority,
-        dueDate: formValue.dueDate ? formValue.dueDate.toISOString() : null
+        dueDate: formValue.dueDate ? new Date(formValue.dueDate).toISOString() : undefined
       };
 
       if (this.isEditing && this.task) {
