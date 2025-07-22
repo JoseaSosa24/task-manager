@@ -1,4 +1,4 @@
-/* ===== TASK MANAGER - CONFIGURACIÓN MÍNIMA FUNCIONAL ===== */
+/* ===== TASK MANAGER - CONFIGURACIÓN COMPLETA ===== */
 
 /* Angular Material Theme */
 @import "@angular/material/prebuilt-themes/azure-blue.css";
@@ -24,6 +24,16 @@
   
   /* Transiciones */
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Custom Theme Variables para Sidebar */
+  --sidebar-bg: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  --sidebar-text: #e2e8f0;
+  --sidebar-text-muted: #94a3b8;
+  --sidebar-border: rgba(148, 163, 184, 0.1);
+  --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --shadow-glow: 0 4px 20px rgba(59, 130, 246, 0.3);
 }
 
 /* ===== TEMA OSCURO ===== */
@@ -37,6 +47,13 @@
   --mdc-theme-background: #121212;
   --mdc-theme-on-background: #E0E0E0;
   --mdc-theme-outline: #404040;
+  
+  /* Sidebar Variables Dark Theme */
+  --sidebar-bg: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+  --sidebar-text: #f1f5f9;
+  --sidebar-text-muted: #64748b;
+  --glass-bg: rgba(0, 0, 0, 0.2);
+  --glass-border: rgba(255, 255, 255, 0.1);
 }
 
 /* ===== ESTILOS BASE ===== */
@@ -76,7 +93,201 @@ body {
   direction: ltr;
 }
 
-/* ===== COMPONENTES PERSONALIZADOS ===== */
+/* ===== SIDEBAR PERSONALIZADO ===== */
+
+/* Sidebar Principal */
+.sidebar-modern {
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(59, 130, 246, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+  pointer-events: none;
+}
+
+/* Items del Sidebar */
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  margin: 4px 8px;
+  border-radius: 12px;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  transform: translateX(4px);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-item.active {
+  background: rgba(59, 130, 246, 0.2);
+  color: #ffffff;
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.sidebar-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #3b82f6;
+  border-radius: 0 2px 2px 0;
+}
+
+/* ===== GLASS COMPONENTS ===== */
+
+/* Glass Cards */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.glass-card-strong {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] .glass-card-strong,
+.dark-theme .glass-card-strong {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ===== GRADIENTES Y BOTONES ===== */
+
+/* Gradiente Principal */
+.bg-gradient-primary {
+  background: var(--gradient-primary);
+}
+
+/* Botones Glass */
+.btn-glass {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 20px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-glass:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* ===== EFECTOS ESPECIALES ===== */
+
+/* Shadow Glow */
+.shadow-glow {
+  box-shadow: var(--shadow-glow);
+}
+
+/* Texto con Gradiente */
+.text-gradient {
+  background: var(--gradient-primary);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease-in-out infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Skeletons para Loading */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+[data-theme="dark"] .skeleton,
+.dark-theme .skeleton {
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ===== NAVEGACIÓN MÓVIL ===== */
+
+/* Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--glass-border);
+  padding: 8px 16px 20px;
+  z-index: 1000;
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  border-radius: 12px;
+  color: var(--sidebar-text-muted);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  min-height: 60px;
+}
+
+.bottom-nav-item:hover,
+.bottom-nav-item.active {
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* ===== COMPONENTES MATERIAL DESIGN ===== */
 
 /* Toolbar */
 .main-toolbar {
@@ -172,4 +383,76 @@ body {
   .mat-mdc-card {
     margin: 8px !important;
   }
+
+  .sidebar-modern {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-modern.mobile-open {
+    transform: translateX(0);
+  }
+}
+
+/* ===== ANIMACIONES ADICIONALES ===== */
+
+/* Fade In Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Pulse Animation */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.animate-pulse-gentle {
+  animation: pulse 2s infinite;
+}
+
+/* Bounce Animation */
+@keyframes bounceIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.6s ease-out;
+}
+
+/* Slide Up Animation */
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+/* ===== SCROLLBAR PERSONALIZADO ===== */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--mdc-theme-surface-variant);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--mdc-theme-outline);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mdc-theme-primary);
 }
