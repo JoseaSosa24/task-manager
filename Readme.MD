@@ -155,9 +155,8 @@ task-manager/
 | HU01 - Autenticación | ALTA ⭐⭐⭐ | 8h | ✅ COMPLETADO |
 | HU02 - CRUD Tareas | ALTA ⭐⭐⭐ | 12h | ✅ COMPLETADO |
 | HU06 - UX Moderna | ALTA ⭐⭐⭐ | 4h | ✅ COMPLETADO |
-| HU03 - Filtros Avanzados | MEDIA ⭐⭐ | 6h | ✅ COMPLETADO |
-| HU04 - Dashboard | MEDIA ⭐⭐ | 8h | ✅ COMPLETADO |
-| HU05 - Responsive | MEDIA ⭐⭐ | 6h | ✅ COMPLETADO |
+| HU04 - Dashboard | MEDIA ⭐⭐ | 8h | - NO COMPLETADO |
+| HU05 - Responsive | MEDIA ⭐⭐ | 6h | -NO COMPLETADO |
 
 ## 🚀 Instalación y Ejecución
 
@@ -171,6 +170,7 @@ task-manager/
 ```sql
 -- Importar el archivo TaskManagerDB.sql adjunto en SQL Server
 -- El script creará automáticamente la base de datos y tablas
+-- Al levantar el back se ceará la BD y tablas
 ```
 
 ### 2. Backend (Spring Boot)
