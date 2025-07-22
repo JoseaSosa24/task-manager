@@ -54,6 +54,37 @@ public class UserService {
         return convertToProfileDto(updatedUser);
     }
 
+    public User updateUserAndReturnEntity(String username, UserProfileDto profileDto) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Validar username único si cambió
+        if (!user.getUsername().equals(profileDto.getUsername())) {
+            if (userRepository.existsByUsername(profileDto.getUsername())) {
+                throw new RuntimeException("El nombre de usuario ya está en uso");
+            }
+            user.setUsername(profileDto.getUsername());
+        }
+
+        // Validar email único si cambió  
+        if (!user.getEmail().equals(profileDto.getEmail())) {
+            if (userRepository.existsByEmail(profileDto.getEmail())) {
+                throw new RuntimeException("El correo electrónico ya está en uso");
+            }
+            user.setEmail(profileDto.getEmail());
+        }
+
+        // Actualizar campos
+        user.setFirstName(profileDto.getFirstName());
+        user.setLastName(profileDto.getLastName());
+        if (profileDto.getPhone() != null) {
+            user.setPhone(profileDto.getPhone());
+        }
+        
+        User savedUser = userRepository.save(user);
+        return savedUser;
+    }
+
     public void changePassword(String username, String oldPassword, String newPassword) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -64,18 +95,6 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
-    }
-
-    public User updateUserAndReturnEntity(String username, UserProfileDto profileDto) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
-        user.setUsername(profileDto.getUsername());
-        user.setFirstName(profileDto.getFirstName());
-        user.setLastName(profileDto.getLastName());
-        user.setPhone(profileDto.getPhone());
-        user = userRepository.save(user);
-        return user;
     }
 
     private UserProfileDto convertToProfileDto(User user) {

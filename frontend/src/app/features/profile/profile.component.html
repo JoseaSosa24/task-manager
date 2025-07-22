@@ -1,97 +1,296 @@
-<div class="max-w-3xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
-  <div class="text-center mb-8">
-    <h1 class="text-3xl font-semibold text-gray-800 dark:text-gray-100">Mi Perfil</h1>
-    <p class="text-gray-500 dark:text-gray-400">Gestiona tu información personal y configuración de cuenta</p>
-  </div>
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Header Section -->
+    <div class="mb-8 text-center">
+      <h1 class="text-4xl font-bold text-gradient">Mi Perfil</h1>
+      <p class="text-gray-600 dark:text-gray-400 text-lg mt-2">
+        Gestiona tu información personal y configuración de cuenta
+      </p>
+    </div>
 
-  <div *ngIf="userProfile; else loadingBlock">
-    <div class="flex items-center space-x-6 mb-8">
-      <div class="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center text-3xl font-bold">
-        {{ userProfile.initials }}
-      </div>
-      <div>
-        <p class="text-xl font-medium text-gray-800 dark:text-gray-200">{{ userProfile.fullName }}</p>
-        <p class="text-gray-500 dark:text-gray-400">{{ userProfile.email }}</p>
-        <p class="text-gray-500 dark:text-gray-400">@{{ userProfile.username }}</p>
-        <span class="inline-block mt-1 px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm">{{ userProfile.role }}</span>
+    <!-- Profile Card -->
+    <div class="glass-card-strong mb-8" *ngIf="userProfile; else loadingBlock">
+      <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 p-8">
+        <!-- Avatar -->
+        <div class="w-24 h-24 rounded-full bg-gradient-primary text-white flex items-center justify-center text-4xl font-bold shadow-glow">
+          {{ userProfile.initials }}
+        </div>
+        
+        <!-- User Info -->
+        <div class="text-center sm:text-left flex-grow">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ userProfile.fullName }}</h2>
+          <p class="text-gray-600 dark:text-gray-400 text-lg">{{ userProfile.email }}</p>
+          <p class="text-gray-500 dark:text-gray-500">@{{ userProfile.username }}</p>
+          <div class="mt-3">
+            <span class="inline-block px-4 py-2 bg-gradient-primary text-white rounded-full text-sm font-medium shadow-glow">
+              {{ userProfile.role }}
+            </span>
+          </div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="grid grid-cols-2 gap-4 text-center sm:text-right">
+          <div class="p-4 glass-card rounded-xl">
+            <div class="text-2xl font-bold text-gradient">{{ userProfile.createdAt | date:'MMM yyyy' }}</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Miembro desde</div>
+          </div>
+          <div class="p-4 glass-card rounded-xl">
+            <div class="text-2xl font-bold text-gradient">Activo</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">Estado</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <mat-tab-group>
-      <mat-tab label="Personal">
-        <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="space-y-4 p-4">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <mat-form-field appearance="fill" class="w-full">
-              <mat-label>Nombre</mat-label>
-              <input matInput formControlName="firstName" />
-              <mat-error *ngIf="profileForm.get('firstName')?.invalid">
+    <!-- Tabs Section -->
+    <div class="glass-card-strong" *ngIf="userProfile">
+      <div class="border-b border-gray-200 dark:border-gray-700">
+        <nav class="flex space-x-8 px-8 pt-6" aria-label="Tabs">
+          <button
+            [class]="'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 ' + 
+                    (activeTab === 'personal' ? 
+                      'border-emerald-500 text-emerald-600 dark:text-emerald-400' : 
+                      'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300')"
+            (click)="activeTab = 'personal'">
+            <i class="pi pi-user mr-2"></i>
+            Información Personal
+          </button>
+          <button
+            [class]="'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 ' + 
+                    (activeTab === 'security' ? 
+                      'border-emerald-500 text-emerald-600 dark:text-emerald-400' : 
+                      'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300')"
+            (click)="activeTab = 'security'">
+            <i class="pi pi-shield mr-2"></i>
+            Seguridad
+          </button>
+        </nav>
+      </div>
+
+      <!-- Personal Info Tab -->
+      <div *ngIf="activeTab === 'personal'" class="p-8">
+        <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="space-y-6">
+          
+          <!-- Form Header -->
+          <div class="mb-8">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              Información Personal
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400">
+              Actualiza tu información personal y datos de contacto
+            </p>
+          </div>
+
+          <!-- Name Fields -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <i class="pi pi-user mr-2"></i>Nombre
+              </label>
+              <input 
+                type="text" 
+                formControlName="firstName"
+                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-200"
+                placeholder="Tu nombre">
+              <div *ngIf="profileForm.get('firstName')?.touched && profileForm.get('firstName')?.errors" 
+                   class="text-red-500 text-sm font-medium">
                 {{ getFieldError(profileForm, 'firstName') }}
-              </mat-error>
-            </mat-form-field>
-            <mat-form-field appearance="fill" class="w-full">
-              <mat-label>Apellido</mat-label>
-              <input matInput formControlName="lastName" />
-              <mat-error *ngIf="profileForm.get('lastName')?.invalid">
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <i class="pi pi-user mr-2"></i>Apellido
+              </label>
+              <input 
+                type="text" 
+                formControlName="lastName"
+                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-200"
+                placeholder="Tu apellido">
+              <div *ngIf="profileForm.get('lastName')?.touched && profileForm.get('lastName')?.errors" 
+                   class="text-red-500 text-sm font-medium">
                 {{ getFieldError(profileForm, 'lastName') }}
-              </mat-error>
-            </mat-form-field>
+              </div>
+            </div>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <mat-form-field appearance="fill" class="w-full">
-              <mat-label>Usuario</mat-label>
-              <input matInput formControlName="username" />
-              <mat-error *ngIf="profileForm.get('username')?.invalid">
+
+          <!-- Username & Email -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <i class="pi pi-at mr-2"></i>Usuario
+              </label>
+              <input 
+                type="text" 
+                formControlName="username"
+                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-200"
+                placeholder="tu-usuario">
+              <div *ngIf="profileForm.get('username')?.touched && profileForm.get('username')?.errors" 
+                   class="text-red-500 text-sm font-medium">
                 {{ getFieldError(profileForm, 'username') }}
-              </mat-error>
-            </mat-form-field>
-            <mat-form-field appearance="fill" class="w-full">
-              <mat-label>Email</mat-label>
-              <input matInput formControlName="email" />
-              <mat-error *ngIf="profileForm.get('email')?.invalid">
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <i class="pi pi-envelope mr-2"></i>Email
+              </label>
+              <input 
+                type="email" 
+                formControlName="email"
+                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-200"
+                placeholder="tu@email.com">
+              <div *ngIf="profileForm.get('email')?.touched && profileForm.get('email')?.errors" 
+                   class="text-red-500 text-sm font-medium">
                 {{ getFieldError(profileForm, 'email') }}
-              </mat-error>
-            </mat-form-field>
+              </div>
+            </div>
           </div>
-          <button mat-raised-button color="primary" class="mt-4" [disabled]="profileForm.invalid || updatingProfile">
-            {{ updatingProfile ? 'Guardando...' : 'Guardar Cambios' }}
-          </button>
-        </form>
-      </mat-tab>
 
-      <mat-tab label="Seguridad">
-        <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="space-y-4 p-4">
-          <mat-form-field appearance="fill" class="w-full">
-            <mat-label>Contraseña Actual</mat-label>
-            <input matInput type="password" formControlName="oldPassword" />
-            <mat-error *ngIf="passwordForm.get('oldPassword')?.invalid">
+          <!-- Submit Button -->
+          <div class="flex justify-end pt-6">
+            <button 
+              type="submit"
+              [disabled]="profileForm.invalid || updatingProfile"
+              class="inline-flex items-center px-6 py-3 bg-gradient-to-br from-emerald-600 to-green-600 text-white font-semibold rounded-xl hover:shadow-glow disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]">
+              <i class="pi pi-save mr-2" *ngIf="!updatingProfile"></i>
+              <div *ngIf="updatingProfile" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+              {{ updatingProfile ? 'Guardando...' : 'Guardar Cambios' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Security Tab -->
+      <div *ngIf="activeTab === 'security'" class="p-8">
+        <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="space-y-6">
+          
+          <!-- Form Header -->
+          <div class="mb-8">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              Seguridad de la Cuenta
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400">
+              Actualiza tu contraseña para mantener tu cuenta segura
+            </p>
+          </div>
+
+          <!-- Current Password -->
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              <i class="pi pi-lock mr-2"></i>Contraseña Actual
+            </label>
+            <div class="relative">
+              <input 
+                [type]="hideCurrentPassword ? 'password' : 'text'"
+                formControlName="oldPassword"
+                class="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-200"
+                placeholder="Tu contraseña actual">
+              <button 
+                type="button" 
+                (click)="hideCurrentPassword = !hideCurrentPassword"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                <i [class]="hideCurrentPassword ? 'pi pi-eye' : 'pi pi-eye-slash'"></i>
+              </button>
+            </div>
+            <div *ngIf="passwordForm.get('oldPassword')?.touched && passwordForm.get('oldPassword')?.errors" 
+                 class="text-red-500 text-sm font-medium">
               {{ getFieldError(passwordForm, 'oldPassword') }}
-            </mat-error>
-          </mat-form-field>
-          <mat-form-field appearance="fill" class="w-full">
-            <mat-label>Nueva Contraseña</mat-label>
-            <input matInput type="password" formControlName="newPassword" />
-            <mat-error *ngIf="passwordForm.get('newPassword')?.invalid">
-              {{ getFieldError(passwordForm, 'newPassword') }}
-            </mat-error>
-          </mat-form-field>
-          <mat-form-field appearance="fill" class="w-full">
-            <mat-label>Confirmar Contraseña</mat-label>
-            <input matInput type="password" formControlName="confirmPassword" />
-            <mat-error *ngIf="passwordForm.get('confirmPassword')?.invalid || passwordForm.hasError('passwordMismatch')">
-              {{ getFieldError(passwordForm, 'confirmPassword') }}
-            </mat-error>
-          </mat-form-field>
-          <button mat-raised-button color="primary" class="mt-4" [disabled]="passwordForm.invalid || changingPassword">
-            {{ changingPassword ? 'Cambiando...' : 'Cambiara Contraseña' }}
-          </button>
-        </form>
-      </mat-tab>
-    </mat-tab-group>
-  </div>
+            </div>
+          </div>
 
-  <ng-template #loadingBlock>
-    <div class="text-center text-gray-500 dark:text-gray-400">
-      <p>Cargando perfil...</p>
+          <!-- New Password -->
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              <i class="pi pi-key mr-2"></i>Nueva Contraseña
+            </label>
+            <div class="relative">
+              <input 
+                [type]="hideNewPassword ? 'password' : 'text'"
+                formControlName="newPassword"
+                class="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-200"
+                placeholder="Tu nueva contraseña">
+              <button 
+                type="button" 
+                (click)="hideNewPassword = !hideNewPassword"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                <i [class]="hideNewPassword ? 'pi pi-eye' : 'pi pi-eye-slash'"></i>
+              </button>
+            </div>
+            <div *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.errors" 
+                 class="text-red-500 text-sm font-medium">
+              {{ getFieldError(passwordForm, 'newPassword') }}
+            </div>
+          </div>
+
+          <!-- Confirm New Password -->
+          <div class="space-y-2">
+            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              <i class="pi pi-check-circle mr-2"></i>Confirmar Nueva Contraseña
+            </label>
+            <div class="relative">
+              <input 
+                [type]="hideConfirmPassword ? 'password' : 'text'"
+                formControlName="confirmPassword"
+                class="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-200"
+                placeholder="Confirma tu nueva contraseña">
+              <button 
+                type="button" 
+                (click)="hideConfirmPassword = !hideConfirmPassword"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                <i [class]="hideConfirmPassword ? 'pi pi-eye' : 'pi pi-eye-slash'"></i>
+              </button>
+            </div>
+            <div *ngIf="passwordForm.get('confirmPassword')?.touched && (passwordForm.get('confirmPassword')?.errors || passwordForm.hasError('passwordMismatch'))" 
+                 class="text-red-500 text-sm font-medium">
+              {{ getFieldError(passwordForm, 'confirmPassword') }}
+            </div>
+          </div>
+
+          <!-- Password Strength Indicator -->
+          <div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-4">
+            <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Requisitos de Contraseña:
+            </h4>
+            <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+              <li class="flex items-center">
+                <i class="pi pi-check text-green-500 mr-2" *ngIf="passwordForm.get('newPassword')?.value?.length >= 6; else unchecked1"></i>
+                <ng-template #unchecked1><i class="pi pi-circle text-gray-400 mr-2"></i></ng-template>
+                Mínimo 6 caracteres
+              </li>
+              <li class="flex items-center">
+                <i class="pi pi-check text-green-500 mr-2" *ngIf="passwordForm.get('newPassword')?.value && passwordForm.get('confirmPassword')?.value && passwordForm.get('newPassword')?.value === passwordForm.get('confirmPassword')?.value; else unchecked2"></i>
+                <ng-template #unchecked2><i class="pi pi-circle text-gray-400 mr-2"></i></ng-template>
+                Las contraseñas coinciden
+              </li>
+            </ul>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="flex justify-end pt-6">
+            <button 
+              type="submit"
+              [disabled]="passwordForm.invalid || changingPassword"
+              class="inline-flex items-center px-6 py-3 bg-gradient-to-br from-emerald-600 to-green-600 text-white font-semibold rounded-xl hover:shadow-glow disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]">
+              <i class="pi pi-shield mr-2" *ngIf="!changingPassword"></i>
+              <div *ngIf="changingPassword" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+              {{ changingPassword ? 'Cambiando...' : 'Cambiar Contraseña' }}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
-  </ng-template>
+
+    <!-- Loading State -->
+    <ng-template #loadingBlock>
+      <div class="glass-card-strong p-12">
+        <div class="text-center">
+          <div class="inline-block w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mb-4"></div>
+          <p class="text-gray-600 dark:text-gray-400 text-lg">Cargando perfil...</p>
+        </div>
+      </div>
+    </ng-template>
+
+  </div>
 </div>

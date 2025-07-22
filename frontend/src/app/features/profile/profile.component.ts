@@ -29,6 +29,7 @@ import { UserProfile, UpdateProfileRequest, ChangePasswordRequest } from '../../
     MatIconModule
   ],
   templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.css'] 
 })
 export class ProfileComponent implements OnInit, OnDestroy {
   userProfile: UserProfile | null = null;
@@ -37,6 +38,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
   loading = false;
   updatingProfile = false;
   changingPassword = false;
+
+  // ✅ PROPIEDADES FALTANTES AGREGADAS
+  activeTab: 'personal' | 'security' = 'personal';
+  hideCurrentPassword = true;
+  hideNewPassword = true;
+  hideConfirmPassword = true;
 
   private destroy$ = new Subject<void>();
 
@@ -104,7 +111,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
     if (!this.profileForm.valid) return;
     this.updatingProfile = true;
 
-    const updateData: UpdateProfileRequest = this.profileForm.value;
+    // ✅ SOLUCIÓN RÁPIDA: Agregar phone: null
+    const updateData: UpdateProfileRequest = {
+      ...this.profileForm.value,
+      phone: null
+    };
+    
     this.userService.updateProfile(updateData)
       .pipe(
         takeUntil(this.destroy$),
@@ -114,6 +126,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         next: ({ user, token }) => {
           this.authService.setToken(token);
           this.authService.updateCurrentUser(user);
+          this.loadProfile(); // ✅ Recargar perfil
           this.snackBar.open('Perfil actualizado exitosamente', 'Cerrar', {
             duration: 3000,
             panelClass: ['success-snackbar']
@@ -143,6 +156,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.passwordForm.reset();
+          // ✅ Reset password visibility toggles
+          this.hideCurrentPassword = true;
+          this.hideNewPassword = true;
+          this.hideConfirmPassword = true;
           this.snackBar.open('Contraseña cambiada exitosamente', 'Cerrar', {
             duration: 3000,
             panelClass: ['success-snackbar']
