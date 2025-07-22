@@ -6,23 +6,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <base href="/">
     
-    <!-- Material Icons Font -->
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    
+    <!-- Preconnect para optimizar carga de fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Fuentes de Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
-    <!-- Inter Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Material Design Theme -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Meta tags para SEO y PWA -->
+    <meta name="description" content="Sistema de gestión de tareas profesional">
+    <meta name="theme-color" content="#2196F3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Task Manager">
   </head>
   <body>
     <app-root>
-      <div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-family: Inter, sans-serif;">
-        <div style="text-align: center;">
-          <div style="width: 40px; height: 40px; border: 3px solid #f3f3f3; border-top: 3px solid #2196F3; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px;"></div>
-          <p style="color: #666; margin: 0;">Cargando Task Manager...</p>
+      <!-- Loading Spinner -->
+      <div style="
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        height: 100vh; 
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      ">
+        <div style="text-align: center; color: white;">
+          <div style="
+            width: 48px; 
+            height: 48px; 
+            border: 4px solid rgba(255, 255, 255, 0.3); 
+            border-top: 4px solid #ffffff; 
+            border-radius: 50%; 
+            animation: spin 1s linear infinite; 
+            margin: 0 auto 24px;
+          "></div>
+          <h3 style="margin: 0 0 8px 0; font-weight: 600;">Task Manager</h3>
+          <p style="color: rgba(255, 255, 255, 0.8); margin: 0; font-size: 14px;">
+            Cargando sistema de gestión de tareas...
+          </p>
         </div>
       </div>
+      
       <style>
         @keyframes spin {
           0% { transform: rotate(0deg); }
