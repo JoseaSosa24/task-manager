@@ -1,79 +1,132 @@
-<div class="max-w-6xl mx-auto p-6">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-semibold">Mis Tareas</h1>
-    <button mat-raised-button color="primary" (click)="openTaskForm()">
-      <mat-icon>add</mat-icon> Crear Tarea
-    </button>
+<div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-purple-900 p-6">
+  <!-- Header -->
+  <div class="glass-card mb-6 p-6">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-3xl font-bold text-gradient mb-2">Mis Tareas</h1>
+        <p class="text-gray-600 dark:text-gray-300">Gestiona y organiza tus tareas de manera eficiente</p>
+      </div>
+      <button class=" " (click)="openTaskForm()">
+        <i class="pi pi-plus mr-2"></i>
+        Crear Tarea
+      </button>
+    </div>
   </div>
 
+  <!-- Filters Component -->
   <app-task-filters
     [loading]="loading"
     (filtersChanged)="onFiltersChanged($event)">
   </app-task-filters>
 
-  <div class="relative">
-    <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+  <!-- Progress Bar -->
+  <div *ngIf="loading" class="mb-6">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </div>
 
-    <div *ngIf="!loading" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 my-6">
-      <ng-container *ngFor="let task of filteredTasks">
-        <mat-card
-          class="transform transition hover:-translate-y-1 hover:shadow-lg"
-          [ngClass]="{'border-l-4 border-red-500': isOverdue(task)}">
-          <mat-card-header>
-            <div class="flex justify-between items-start w-full">
-              <h3 class="text-lg font-medium">{{ task.title }}</h3>
-              <button mat-icon-button [matMenuTriggerFor]="taskMenu">
-                <mat-icon>more_vert</mat-icon>
-              </button>
-              <mat-menu #taskMenu="matMenu">
-                <button mat-menu-item (click)="editTask(task)">
-                  <mat-icon>edit</mat-icon> Editar
-                </button>
-                <button mat-menu-item (click)="deleteTask(task.id)">
-                  <mat-icon>delete</mat-icon> Eliminar
-                </button>
-              </mat-menu>
-            </div>
-          </mat-card-header>
+  <!-- Tasks Grid -->
+  <div *ngIf="!loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    <div *ngFor="let task of filteredTasks; trackBy: trackByTaskId" 
+         class="glass-card hover:transform hover:scale-105 transition-all duration-200"
+         [class.border-l-4]="isOverdue(task)"
+         [class.border-red-500]="isOverdue(task)">
+      
+      <!-- Card Header -->
+      <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-start">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white truncate flex-1 mr-2">
+            {{ task.title }}
+          </h3>
+          <button class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" 
+                  [matMenuTriggerFor]="taskMenu">
+            <i class="pi pi-ellipsis-v text-gray-400"></i>
+          </button>
+          <mat-menu #taskMenu="matMenu">
+            <button mat-menu-item (click)="editTask(task)">
+              <i class="pi pi-pencil mr-2"></i> Editar
+            </button>
+            <button mat-menu-item (click)="deleteTask(task.id)" class="text-red-600">
+              <i class="pi pi-trash mr-2"></i> Eliminar
+            </button>
+          </mat-menu>
+        </div>
+      </div>
 
-          <mat-card-content class="space-y-4">
-            <p class="text-gray-600">{{ task.description }}</p>
-            <div class="flex flex-wrap items-center gap-2">
-              <mat-chip
-                class="py-1"
-                [ngClass]="'status-' + task.status.toLowerCase()">
-                {{ getStatusLabel(task.status) }}
-              </mat-chip>
-              <mat-chip
-                class="py-1"
-                [ngClass]="'priority-' + task.priority.toLowerCase()">
-                {{ getPriorityLabel(task.priority) }}
-              </mat-chip>
-              <div *ngIf="task.dueDate" class="flex items-center text-sm text-gray-500">
-                <mat-icon class="text-base mr-1">schedule</mat-icon>
-                {{ formatDate(task.dueDate) }}
-              </div>
-            </div>
-          </mat-card-content>
+      <!-- Card Content -->
+      <div class="p-4 space-y-4">
+        <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+          {{ task.description }}
+        </p>
+        
+        <!-- Status and Priority Chips -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="px-3 py-1 rounded-full text-xs font-medium"
+                [ngClass]="getStatusClasses(task.status)">
+            {{ getStatusLabel(task.status) }}
+          </span>
+          <span class="px-3 py-1 rounded-full text-xs font-medium"
+                [ngClass]="getPriorityClasses(task.priority)">
+            {{ getPriorityLabel(task.priority) }}
+          </span>
+          <div *ngIf="task.dueDate" 
+               class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+            <i class="pi pi-calendar"></i>
+            {{ formatDate(task.dueDate) }}
+          </div>
+        </div>
 
-          <mat-card-actions class="flex flex-wrap gap-2">
-            <button mat-button (click)="changeStatus(task, 'TODO')" [disabled]="task.status === 'TODO'">Por Hacer</button>
-            <button mat-button (click)="changeStatus(task, 'IN_PROGRESS')" [disabled]="task.status === 'IN_PROGRESS'">En Progreso</button>
-            <button mat-button (click)="changeStatus(task, 'IN_REVIEW')" [disabled]="task.status === 'IN_REVIEW'">En Revisión</button>
-            <button mat-button (click)="changeStatus(task, 'DONE')" [disabled]="task.status === 'DONE'">Completada</button>
-          </mat-card-actions>
-        </mat-card>
-      </ng-container>
-    </div>
-
-    <div *ngIf="!loading && filteredTasks.length === 0" class="text-center py-16 space-y-4 text-gray-500">
-      <mat-icon class="text-6xl">assignment</mat-icon>
-      <h3 class="text-xl font-semibold">No hay tareas</h3>
-      <p>Crea tu primera tarea para comenzar.</p>
-      <button mat-raised-button color="primary" (click)="openTaskForm()">Crear Tarea</button>
+        <!-- Status Change Buttons -->
+        <div class="flex flex-wrap gap-2 pt-2">
+          <button class="px-3 py-1 text-xs font-medium rounded-lg border transition-colors"
+                  [class.opacity-50]="task.status === 'TODO'"
+                  [class.cursor-not-allowed]="task.status === 'TODO'"
+                  [disabled]="task.status === 'TODO'"
+                  (click)="changeStatus(task, 'TODO')">
+            Por Hacer
+          </button>
+          <button class="px-3 py-1 text-xs font-medium rounded-lg border transition-colors"
+                  [class.opacity-50]="task.status === 'IN_PROGRESS'"
+                  [class.cursor-not-allowed]="task.status === 'IN_PROGRESS'"
+                  [disabled]="task.status === 'IN_PROGRESS'"
+                  (click)="changeStatus(task, 'IN_PROGRESS')">
+            En Progreso
+          </button>
+          <button class="px-3 py-1 text-xs font-medium rounded-lg border transition-colors"
+                  [class.opacity-50]="task.status === 'IN_REVIEW'"
+                  [class.cursor-not-allowed]="task.status === 'IN_REVIEW'"
+                  [disabled]="task.status === 'IN_REVIEW'"
+                  (click)="changeStatus(task, 'IN_REVIEW')">
+            En Revisión
+          </button>
+          <button class="px-3 py-1 text-xs font-medium rounded-lg border transition-colors"
+                  [class.opacity-50]="task.status === 'DONE'"
+                  [class.cursor-not-allowed]="task.status === 'DONE'"
+                  [disabled]="task.status === 'DONE'"
+                  (click)="changeStatus(task, 'DONE')">
+            Completada
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- Empty State -->
+  <div *ngIf="!loading && filteredTasks.length === 0" 
+       class="glass-card p-12 text-center">
+    <div class="w-20 h-20 bg-gradient-primary rounded-full flex items-center justify-center mx-auto mb-6 shadow-glow">
+      <i class="pi pi-inbox text-3xl text-white"></i>
+    </div>
+    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">No hay tareas</h3>
+    <p class="text-gray-600 dark:text-gray-300 mb-6">
+      {{ tasks.length === 0 ? 'Crea tu primera tarea para comenzar a organizar tu trabajo.' : 'No se encontraron tareas con los filtros aplicados.' }}
+    </p>
+    <button class="btn-glass" (click)="openTaskForm()">
+      <i class="pi pi-plus mr-2"></i>
+      {{ tasks.length === 0 ? 'Crear Primera Tarea' : 'Crear Nueva Tarea' }}
+    </button>
+  </div>
+
+  <!-- Task Form Modal -->
   <app-task-form
     *ngIf="showTaskForm"
     [task]="selectedTask"

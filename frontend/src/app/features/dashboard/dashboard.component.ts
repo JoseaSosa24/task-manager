@@ -262,7 +262,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       'TODO': 'bg-blue-500',
       'IN_PROGRESS': 'bg-yellow-500',
       'IN_REVIEW': 'bg-purple-500',
-      'DONE': 'bg-green-500'
+      'DONE': 'bg-green-500',
+      'CANCELLED': 'bg-red-500'
     };
     return classes[status] || 'bg-gray-500';
   }
@@ -272,7 +273,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       'TODO': 'pi pi-circle',
       'IN_PROGRESS': 'pi pi-clock',
       'IN_REVIEW': 'pi pi-eye',
-      'DONE': 'pi pi-check'
+      'DONE': 'pi pi-check',
+      'CANCELLED': 'pi pi-times'
     };
     return icons[status] || 'pi pi-circle';
   }
@@ -302,7 +304,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
       'TODO': 'To Do',
       'IN_PROGRESS': 'In Progress',
       'IN_REVIEW': 'In Review',
-      'DONE': 'Completed'
+      'DONE': 'Completed',
+      'CANCELLED': 'Cancelled'
     };
     return labels[status] || status;
   }

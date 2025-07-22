@@ -3,15 +3,15 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 
-import { 
-  Task, 
-  CreateTaskRequest, 
-  UpdateTaskRequest, 
-  TaskFilter, 
+import {
+  Task,
+  CreateTaskRequest,
+  UpdateTaskRequest,
+  TaskFilter,
   TaskStats,
   TasksResponse,
   TaskStatus,
-  TaskPriority 
+  TaskPriority
 } from '../models/task.interface';
 import { PaginationParams } from '../models/api.interface';
 import { API_ENDPOINTS } from '../../shared/constants/api-endpoints.constants';
@@ -28,7 +28,7 @@ export class TaskService {
   public loading$ = this.loadingSubject.asObservable();
   public stats$ = this.statsSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // ✅ Obtener todas las tareas del usuario
   getMyTasks(): Observable<Task[]> {
@@ -104,9 +104,9 @@ export class TaskService {
       );
   }
 
-  // ✅ Eliminar tarea
-  deleteTask(id: number): Observable<void> {
-    return this.http.delete<void>(API_ENDPOINTS.TASKS.BY_ID(id))
+
+  deleteTask(id: number): Observable<any> {
+    return this.http.delete<any>(API_ENDPOINTS.TASKS.BY_ID(id))
       .pipe(
         tap(() => {
           const currentTasks = this.tasksSubject.value;
@@ -138,40 +138,59 @@ export class TaskService {
   filterTasks(filter: TaskFilter): Observable<Task[]> {
     return this.tasks$.pipe(
       map(tasks => {
-        let filteredTasks = tasks;
-        
-        if (filter.status?.length) {
-          filteredTasks = filteredTasks.filter(task => 
-            filter.status!.includes(task.status)
-          );
+        console.log('🔍 Original tasks:', tasks.length);
+        console.log('🔍 Filter received:', filter);
+
+        let filteredTasks = [...tasks]; // Crear copia
+
+        // Filtrar por estado
+        if (filter.status && filter.status.length > 0) {
+          console.log('📊 Filtering by status:', filter.status);
+          filteredTasks = filteredTasks.filter(task => {
+            const matches = filter.status!.includes(task.status);
+            console.log(`📊 Task "${task.title}" (${task.status}) matches: ${matches}`);
+            return matches;
+          });
+          console.log('📊 After status filter:', filteredTasks.length);
         }
-        
-        if (filter.priority?.length) {
-          filteredTasks = filteredTasks.filter(task => 
-            filter.priority!.includes(task.priority)
-          );
+
+        // Filtrar por prioridad
+        if (filter.priority && filter.priority.length > 0) {
+          console.log('⚡ Filtering by priority:', filter.priority);
+          filteredTasks = filteredTasks.filter(task => {
+            const matches = filter.priority!.includes(task.priority);
+            console.log(`⚡ Task "${task.title}" (${task.priority}) matches: ${matches}`);
+            return matches;
+          });
+          console.log('⚡ After priority filter:', filteredTasks.length);
         }
-        
-        if (filter.search) {
+
+        // Filtrar por búsqueda
+        if (filter.search && filter.search.trim()) {
           const searchLower = filter.search.toLowerCase();
-          filteredTasks = filteredTasks.filter(task => 
+          console.log('🔍 Filtering by search:', searchLower);
+          filteredTasks = filteredTasks.filter(task =>
             task.title.toLowerCase().includes(searchLower) ||
             task.description.toLowerCase().includes(searchLower)
           );
+          console.log('🔍 After search filter:', filteredTasks.length);
         }
 
+        // Filtrar por fecha desde
         if (filter.dueDateFrom) {
-          filteredTasks = filteredTasks.filter(task => 
+          filteredTasks = filteredTasks.filter(task =>
             task.dueDate && new Date(task.dueDate) >= new Date(filter.dueDateFrom!)
           );
         }
 
+        // Filtrar por fecha hasta
         if (filter.dueDateTo) {
-          filteredTasks = filteredTasks.filter(task => 
+          filteredTasks = filteredTasks.filter(task =>
             task.dueDate && new Date(task.dueDate) <= new Date(filter.dueDateTo!)
           );
         }
 
+        console.log('✅ Final filtered tasks:', filteredTasks.length);
         return filteredTasks;
       })
     );
@@ -185,8 +204,8 @@ export class TaskService {
       todo: tasks.filter(t => t.status === 'TODO').length,
       inProgress: tasks.filter(t => t.status === 'IN_PROGRESS').length,
       inReview: tasks.filter(t => t.status === 'IN_REVIEW').length,
-      //cancelled: tasks.filter(t => t.status === 'CANCELLED').length,
-      overdue: tasks.filter(t => 
+      cancelled: tasks.filter(t => t.status === 'CANCELLED').length,
+      overdue: tasks.filter(t =>
         t.dueDate && new Date(t.dueDate) < new Date() && t.status !== 'DONE'
       ).length,
       lowPriority: tasks.filter(t => t.priority === 'LOW').length,
@@ -194,7 +213,7 @@ export class TaskService {
       highPriority: tasks.filter(t => t.priority === 'HIGH').length,
       urgentPriority: tasks.filter(t => t.priority === 'URGENT').length
     };
-    
+
     this.statsSubject.next(stats);
   }
 
@@ -203,4 +222,6 @@ export class TaskService {
     this.tasksSubject.next([]);
     this.statsSubject.next(null);
   }
+
+  
 }

@@ -9,7 +9,7 @@ export const API_ENDPOINTS = {
   },
   TASKS: {
     BASE: `${environment.apiUrl}/tasks`,
-    MY_TASKS: `${environment.apiUrl}/tasks/my`,
+    MY_TASKS: `${environment.apiUrl}/tasks`, 
     BY_ID: (id: number) => `${environment.apiUrl}/tasks/${id}`,
     BY_STATUS: (status: string) => `${environment.apiUrl}/tasks/status/${status}`,
     BY_PRIORITY: (priority: string) => `${environment.apiUrl}/tasks/priority/${priority}`,
