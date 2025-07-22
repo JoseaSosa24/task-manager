@@ -1,246 +1,252 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import jsPDF from 'jspdf';
+import { ButtonModule } from 'primeng/button';
+import { MenuModule } from 'primeng/menu';
+import { MenuItem } from 'primeng/api';
+import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-export-button',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule],
+  imports: [CommonModule, ButtonModule, MenuModule],
   template: `
-    <div class="relative">
-      <button mat-raised-button 
-              [matMenuTriggerFor]="exportMenu"
-              class="btn-glass"
-              matTooltip="Export Data">
-        <mat-icon>download</mat-icon>
-        <span class="ml-2">Export</span>
-      </button>
+    <div class="export-button-container">
+      <p-menu #menu [model]="exportItems" [popup]="true" styleClass="export-menu"></p-menu>
       
-      <mat-menu #exportMenu="matMenu" class="export-menu">
-        <button mat-menu-item (click)="exportToPDF()" class="export-menu-item">
-          <mat-icon class="text-red-500">picture_as_pdf</mat-icon>
-          <span>Export as PDF</span>
-        </button>
-        
-        <button mat-menu-item (click)="exportToExcel()" class="export-menu-item">
-          <mat-icon class="text-green-500">table_chart</mat-icon>
-          <span>Export as Excel</span>
-        </button>
-        
-        <button mat-menu-item (click)="exportToCSV()" class="export-menu-item">
-          <mat-icon class="text-blue-500">description</mat-icon>
-          <span>Export as CSV</span>
-        </button>
-        
-        <mat-divider></mat-divider>
-        
-        <button mat-menu-item (click)="printReport()" class="export-menu-item">
-          <mat-icon class="text-gray-500">print</mat-icon>
-          <span>Print Report</span>
-        </button>
-      </mat-menu>
+      <p-button
+        (click)="menu.toggle($event)"
+        icon="pi pi-download"
+        [label]="buttonLabel"
+        severity="secondary"
+        size="small"
+        class="export-trigger">
+      </p-button>
+      
+      <!-- Loading overlay -->
+      <div *ngIf="loading" 
+           class="absolute inset-0 flex items-center justify-center bg-white/80 rounded-lg">
+        <div class="flex items-center space-x-2">
+          <i class="pi pi-spin pi-spinner text-blue-500"></i>
+          <span class="text-sm text-gray-600">Exporting...</span>
+        </div>
+      </div>
     </div>
   `,
   styles: [`
-    .export-menu-item {
-      @apply flex items-center space-x-3 py-3 px-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors;
+    .export-button-container {
+      position: relative;
+      display: inline-block;
     }
-    
-    .export-menu-item mat-icon {
-      @apply text-lg;
+
+    ::ng-deep .export-menu {
+      min-width: 180px !important;
+      border-radius: 8px !important;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    ::ng-deep .export-menu .p-menuitem-link {
+      padding: 0.75rem 1rem !important;
+      border-radius: 6px !important;
+      margin: 0.125rem !important;
+      transition: all 0.2s ease-in-out !important;
+    }
+
+    ::ng-deep .export-menu .p-menuitem-link:hover {
+      background: #f3f4f6 !important;
+      transform: translateX(4px);
+    }
+
+    ::ng-deep .export-menu .p-menuitem-icon {
+      margin-right: 0.75rem !important;
+      color: #6b7280 !important;
     }
   `]
 })
-export class ExportButtonComponent {
+export class ExportButtonComponent implements OnInit {
   @Input() data: any[] = [];
   @Input() filename: string = 'export';
   @Input() title: string = 'Data Export';
-  @Input() columns: string[] = [];
-  @Input() headers: string[] = [];
+  @Input() buttonLabel: string = 'Export';
+  @Input() includeCharts: boolean = false;
 
-  exportToPDF() {
-    const doc = new jsPDF();
-    
-    // Add title
-    doc.setFontSize(20);
-    doc.setTextColor(40, 40, 40);
-    doc.text(this.title, 20, 20);
-    
-    // Add date
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 30);
-    
-    // Prepare table data
-    const tableHeaders = this.headers.length > 0 ? this.headers : this.getHeaders();
-    const tableData = this.data.map(item => this.extractRowData(item));
-    
-    // Add table
-    autoTable(doc, {
-      head: [tableHeaders],
-      body: tableData,
-      startY: 40,
-      theme: 'grid',
-      styles: {
-        fontSize: 8,
-        cellPadding: 3
+  loading = false;
+  exportItems: MenuItem[] = [];
+
+  ngOnInit() {
+    this.setupExportMenu();
+  }
+
+  private setupExportMenu(): void {
+    this.exportItems = [
+      {
+        label: 'Export to PDF',
+        icon: 'pi pi-file-pdf',
+        command: () => this.exportToPDF()
       },
-      headStyles: {
-        fillColor: [59, 130, 246],
-        textColor: 255,
-        fontStyle: 'bold'
+      {
+        separator: true
       },
-      alternateRowStyles: {
-        fillColor: [245, 247, 250]
+      {
+        label: 'Export to Excel',
+        icon: 'pi pi-file-excel',
+        command: () => this.exportToExcel()
+      },
+      {
+        label: 'Export to CSV',
+        icon: 'pi pi-file',
+        command: () => this.exportToCSV()
       }
-    });
-    
-    // Add footer
-    const pageCount = doc.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(8);
-      doc.setTextColor(100, 100, 100);
-      doc.text(
-        `Page ${i} of ${pageCount}`,
-        doc.internal.pageSize.width - 30,
-        doc.internal.pageSize.height - 10
-      );
-    }
-    
-    doc.save(`${this.filename}.pdf`);
-  }
-
-  exportToExcel() {
-    const worksheet = XLSX.utils.json_to_sheet(this.data);
-    const workbook = XLSX.utils.book_new();
-    
-    // Set column widths
-    const colWidths = this.getHeaders().map(() => ({ wch: 15 }));
-    worksheet['!cols'] = colWidths;
-    
-    // Add worksheet to workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Data');
-    
-    // Add metadata sheet
-    const metadata = [
-      { Property: 'Title', Value: this.title },
-      { Property: 'Generated', Value: new Date().toISOString() },
-      { Property: 'Records', Value: this.data.length }
     ];
-    const metaSheet = XLSX.utils.json_to_sheet(metadata);
-    XLSX.utils.book_append_sheet(workbook, metaSheet, 'Metadata');
-    
-    XLSX.writeFile(workbook, `${this.filename}.xlsx`);
   }
 
-  exportToCSV() {
-    const headers = this.getHeaders();
-    const csvContent = [
-      headers.join(','),
-      ...this.data.map(item => this.extractRowData(item).join(','))
-    ].join('\n');
+  private async exportToPDF(): Promise<void> {
+    if (!this.data.length) return;
+
+    this.loading = true;
     
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
+    try {
+      const doc = new jsPDF();
+      
+      // Add title
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text(this.title, 14, 22);
+      
+      // Add date
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+      
+      // Prepare table data
+      const headers = Object.keys(this.data[0]);
+      const tableData = this.data.map(item => 
+        headers.map(header => this.formatCellValue(item[header]))
+      );
+      
+      // Add table
+      autoTable(doc, {
+        head: [headers],
+        body: tableData,
+        startY: 40,
+        styles: {
+          fontSize: 8,
+          cellPadding: 3
+        },
+        headStyles: {
+          fillColor: [59, 130, 246],
+          textColor: 255,
+          fontStyle: 'bold'
+        },
+        alternateRowStyles: {
+          fillColor: [249, 250, 251]
+        }
+      });
+      
+      // Save the PDF
+      doc.save(`${this.filename}.pdf`);
+      
+    } catch (error) {
+      console.error('PDF export failed:', error);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  private async exportToExcel(): Promise<void> {
+    if (!this.data.length) return;
+
+    this.loading = true;
     
-    if (link.download !== undefined) {
+    try {
+      // Create workbook
+      const wb = XLSX.utils.book_new();
+      
+      // Create worksheet
+      const ws = XLSX.utils.json_to_sheet(this.data);
+      
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Data');
+      
+      // Auto-fit columns
+      const colWidths = this.calculateColumnWidths(this.data);
+      ws['!cols'] = colWidths;
+      
+      // Save file
+      XLSX.writeFile(wb, `${this.filename}.xlsx`);
+      
+    } catch (error) {
+      console.error('Excel export failed:', error);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  private async exportToCSV(): Promise<void> {
+    if (!this.data.length) return;
+
+    this.loading = true;
+    
+    try {
+      const headers = Object.keys(this.data[0]);
+      const csvContent = [
+        headers.join(','),
+        ...this.data.map(item => 
+          headers.map(header => 
+            this.formatCSVValue(item[header])
+          ).join(',')
+        )
+      ].join('\n');
+      
+      // Create and download file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
+      
       link.setAttribute('href', url);
       link.setAttribute('download', `${this.filename}.csv`);
       link.style.visibility = 'hidden';
+      
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      
+    } catch (error) {
+      console.error('CSV export failed:', error);
+    } finally {
+      this.loading = false;
     }
   }
 
-  printReport() {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return;
-    
-    const headers = this.getHeaders();
-    const tableRows = this.data.map(item => {
-      const rowData = this.extractRowData(item);
-      return `<tr>${rowData.map(cell => `<td>${cell}</td>`).join('')}</tr>`;
-    }).join('');
-    
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>${this.title}</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            h1 { color: #333; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #3b82f6; color: white; font-weight: bold; }
-            tr:nth-child(even) { background-color: #f9f9f9; }
-            .metadata { margin-bottom: 20px; font-size: 12px; color: #666; }
-            @media print {
-              body { margin: 0; }
-              .no-print { display: none; }
-            }
-          </style>
-        </head>
-        <body>
-          <h1>${this.title}</h1>
-          <div class="metadata">
-            Generated on: ${new Date().toLocaleDateString()} | 
-            Total records: ${this.data.length}
-          </div>
-          <table>
-            <thead>
-              <tr>${headers.map(header => `<th>${header}</th>`).join('')}</tr>
-            </thead>
-            <tbody>
-              ${tableRows}
-            </tbody>
-          </table>
-        </body>
-      </html>
-    `;
-    
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
+  private formatCellValue(value: any): string {
+    if (value === null || value === undefined) return '';
+    if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+    if (value instanceof Date) return value.toLocaleDateString();
+    return String(value);
   }
 
-  private getHeaders(): string[] {
-    if (this.headers.length > 0) {
-      return this.headers;
+  private formatCSVValue(value: any): string {
+    const formatted = this.formatCellValue(value);
+    // Escape quotes and wrap in quotes if contains comma, quote, or newline
+    if (formatted.includes(',') || formatted.includes('"') || formatted.includes('\n')) {
+      return `"${formatted.replace(/"/g, '""')}"`;
     }
-    
-    if (this.columns.length > 0) {
-      return this.columns;
-    }
-    
-    if (this.data.length > 0) {
-      return Object.keys(this.data[0]);
-    }
-    
-    return [];
+    return formatted;
   }
 
-  private extractRowData(item: any): any[] {
-    const headers = this.getHeaders();
+  private calculateColumnWidths(data: any[]): any[] {
+    if (!data.length) return [];
+    
+    const headers = Object.keys(data[0]);
     return headers.map(header => {
-      const value = item[header];
-      if (value === null || value === undefined) {
-        return '';
-      }
-      if (typeof value === 'object') {
-        return JSON.stringify(value);
-      }
-      return value.toString();
+      const maxLength = Math.max(
+        header.length,
+        ...data.map(item => 
+          this.formatCellValue(item[header]).length
+        )
+      );
+      return { width: Math.min(maxLength + 2, 50) };
     });
   }
 }

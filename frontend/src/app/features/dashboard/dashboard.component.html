@@ -1,4 +1,5 @@
-<div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-purple-900">
+<div
+  class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-purple-900">
   <!-- Enhanced Header -->
   <div class="glass-card-strong mx-6 mt-6 mb-8">
     <div class="flex items-center justify-between p-6">
@@ -15,17 +16,13 @@
           </p>
         </div>
       </div>
-      
+
       <div class="flex items-center space-x-4">
         <button class="btn-glass" (click)="refreshData()">
           <i class="pi pi-refresh mr-2"></i>
           Refresh
         </button>
-        <app-export-button 
-          [data]="exportData"
-          filename="dashboard-report"
-          title="Dashboard Report"
-          [headers]="['Title', 'Status', 'Priority', 'Due Date', 'Created']">
+        <app-export-button [data]="exportData" filename="dashboard-report" title="Dashboard Report">
         </app-export-button>
       </div>
     </div>
@@ -34,46 +31,20 @@
   <!-- Statistics Cards Grid -->
   <div class="px-6 mb-8">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <app-stat-card
-        title="Total Tasks"
-        [value]="getTotalTasks()"
-        icon="pi pi-list"
-        color="primary"
-        [trend]="'up'"
-        [trendValue]="12"
-        [animationDelay]="0">
+      <app-stat-card title="Total Tasks" [value]="getTotalTasks()" icon="pi pi-list" color="primary" [trend]="'up'"
+        [trendValue]="12" [animationDelay]="0">
       </app-stat-card>
-      
-      <app-stat-card
-        title="Completed"
-        [value]="getCompletedCount()"
-        icon="pi pi-check-circle"
-        color="success"
-        [trend]="'up'"
-        [trendValue]="8"
-        [percentage]="getCompletionPercentage()"
-        [animationDelay]="200">
+
+      <app-stat-card title="Completed" [value]="getCompletedCount()" icon="pi pi-check-circle" color="success"
+        [trend]="'up'" [trendValue]="8" [percentage]="getCompletionPercentage()" [animationDelay]="200">
       </app-stat-card>
-      
-      <app-stat-card
-        title="In Progress"
-        [value]="getInProgressCount()"
-        icon="pi pi-clock"
-        color="warning"
-        [trend]="'stable'"
-        [trendValue]="0"
-        [percentage]="getInProgressPercentage()"
-        [animationDelay]="400">
+
+      <app-stat-card title="In Progress" [value]="getInProgressCount()" icon="pi pi-clock" color="warning"
+        [trend]="'stable'" [trendValue]="0" [percentage]="getInProgressPercentage()" [animationDelay]="400">
       </app-stat-card>
-      
-      <app-stat-card
-        title="Overdue"
-        [value]="getOverdueCount()"
-        icon="pi pi-exclamation-triangle"
-        color="danger"
-        [trend]="'down'"
-        [trendValue]="5"
-        [animationDelay]="600">
+
+      <app-stat-card title="Overdue" [value]="getOverdueCount()" icon="pi pi-exclamation-triangle" color="danger"
+        [trend]="'down'" [trendValue]="5" [animationDelay]="600">
       </app-stat-card>
     </div>
   </div>
@@ -82,18 +53,11 @@
   <div class="px-6 mb-8">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Weekly Progress Chart -->
-      <app-chart-widget
-        type="line"
-        title="Weekly Progress"
-        [data]="weeklyProgressData"
-        [loading]="chartsLoading">
+      <app-chart-widget type="line" title="Weekly Progress" [data]="weeklyProgressData" [loading]="chartsLoading">
       </app-chart-widget>
-      
+
       <!-- Priority Distribution Chart -->
-      <app-chart-widget
-        type="doughnut"
-        title="Tasks by Priority"
-        [data]="priorityDistributionData"
+      <app-chart-widget type="doughnut" title="Tasks by Priority" [data]="priorityDistributionData"
         [loading]="chartsLoading">
       </app-chart-widget>
     </div>
@@ -117,7 +81,7 @@
           Hours per task
         </p>
       </div>
-      
+
       <!-- Tasks Per Day -->
       <div class="glass-card p-6">
         <div class="flex items-center justify-between mb-4">
@@ -133,7 +97,7 @@
           Tasks completed daily
         </p>
       </div>
-      
+
       <!-- Most Productive Hour -->
       <div class="glass-card p-6">
         <div class="flex items-center justify-between mb-4">
@@ -178,15 +142,15 @@
 
         <div *ngIf="!loading && recentTasks.length > 0" class="space-y-4">
           <div *ngFor="let task of recentTasks.slice(0, 6); trackBy: trackByTaskId"
-               class="flex items-center justify-between p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 hover:shadow-md cursor-pointer"
-               (click)="openTaskDetail(task)">
-            
+            class="flex items-center justify-between p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 hover:shadow-md cursor-pointer"
+            (click)="openTaskDetail(task)">
+
             <div class="flex items-center space-x-4">
               <div class="w-10 h-10 rounded-full flex items-center justify-center"
-                   [ngClass]="getTaskStatusBg(task.status)">
+                [ngClass]="getTaskStatusBg(task.status)">
                 <i [class]="getTaskStatusIcon(task.status)" class="text-white"></i>
               </div>
-              
+
               <div class="flex-1 min-w-0">
                 <h3 class="font-semibold text-gray-900 dark:text-white truncate">
                   {{ task.title }}
@@ -196,28 +160,27 @@
                 </p>
               </div>
             </div>
-            
+
             <div class="flex items-center space-x-3">
-              <span class="px-3 py-1 rounded-full text-xs font-medium"
-                    [ngClass]="getPriorityClasses(task.priority)">
+              <span class="px-3 py-1 rounded-full text-xs font-medium" [ngClass]="getPriorityClasses(task.priority)">
                 {{ getPriorityText(task.priority) }}
               </span>
-              
+
               <span class="text-sm text-gray-500 dark:text-gray-400">
                 {{ formatDate(task.createdAt) }}
               </span>
-              
+
               <button class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                      (click)="toggleTaskMenu($event, task)">
+                (click)="toggleTaskMenu($event, task)">
                 <i class="pi pi-ellipsis-v text-gray-400"></i>
               </button>
             </div>
           </div>
         </div>
 
-        <div *ngIf="!loading && recentTasks.length === 0" 
-             class="text-center py-12">
-          <div class="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div *ngIf="!loading && recentTasks.length === 0" class="text-center py-12">
+          <div
+            class="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
             <i class="pi pi-inbox text-3xl text-gray-400"></i>
           </div>
           <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No tasks yet</h3>
@@ -234,7 +197,7 @@
   <!-- Quick Actions Floating Button (Mobile) -->
   <div class="fixed bottom-20 right-6 md:hidden z-40">
     <button class="w-14 h-14 bg-gradient-primary rounded-full shadow-glow flex items-center justify-center"
-            routerLink="/tasks">
+      routerLink="/tasks">
       <i class="pi pi-plus text-xl text-white"></i>
     </button>
   </div>
