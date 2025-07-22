@@ -1,183 +1,411 @@
-<!-- frontend/src/app/layouts/main-layout/main-layout.component.html -->
-<mat-sidenav-container class="h-screen">
-  <!-- Sidebar Moderno -->
-  <mat-sidenav #drawer 
-    class="!bg-gray-900 dark:!bg-black !w-64 !border-r-0"
-    fixedInViewport
-    [mode]="(isHandset$ | async) ? 'over' : 'side'"
-    [opened]="!(isHandset$ | async)">
+<div class="flex h-screen bg-gray-50 dark:bg-gray-900">
+  <!-- Modern Sidebar -->
+  <aside class="sidebar-modern w-64 flex-shrink-0 hidden md:flex flex-col transition-all duration-300"
+         [class.w-16]="sidebarCollapsed">
     
-    <!-- Header del Sidebar -->
-    <div class="h-16 bg-gray-900 dark:bg-black border-b border-gray-700 flex items-center justify-center">
-      <h1 class="text-white text-xl font-bold tracking-wider">
-        <span class="text-red-500">Dash</span>board
-      </h1>
+    <!-- Sidebar Header -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-700/50">
+      <div class="flex items-center space-x-3" [class.hidden]="sidebarCollapsed">
+        <div class="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center shadow-glow">
+          <i class="pi pi-check-circle text-white text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-white">TaskFlow</h1>
+          <p class="text-xs text-gray-400">Pro Dashboard</p>
+        </div>
+      </div>
+      <button (click)="toggleSidebar()" 
+              class="p-2 rounded-lg hover:bg-white/10 transition-colors text-gray-400 hover:text-white">
+        <i class="pi pi-bars"></i>
+      </button>
     </div>
 
-    <!-- Sección de Perfil de Usuario -->
-    <div class="p-6 bg-gray-900 dark:bg-black border-b border-gray-700" *ngIf="userProfile">
+    <!-- User Profile Section -->
+    <div class="p-6 border-b border-gray-700/50" [class.hidden]="sidebarCollapsed" *ngIf="userProfile">
       <div class="flex items-center space-x-3">
-        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
           <span class="text-white font-semibold text-lg">
             {{ getUserInitials() }}
           </span>
         </div>
-        <div class="text-white">
-          <div class="font-medium">{{ getFirstName() }}</div>
-          <div class="text-gray-400 text-sm">{{ getUserEmail() }}</div>
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold text-white truncate">{{ getFirstName() }}</div>
+          <div class="text-sm text-gray-400 truncate">{{ getUserEmail() }}</div>
         </div>
       </div>
     </div>
 
-    <!-- Navegación Principal -->
-    <nav class="flex-1 px-4 py-6 space-y-2">
+    <!-- Navigation Menu -->
+    <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
       <!-- Dashboard -->
       <a routerLink="/dashboard" 
-         routerLinkActive="!bg-red-500 !text-white shadow-lg"
-         class="flex items-center space-x-3 px-4 py-3 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group">
-        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
-        </svg>
-        <span class="font-medium">Dashboard</span>
+         routerLinkActive="active"
+         class="sidebar-item group">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+          <i class="pi pi-th-large text-lg text-white"></i>
+        </div>
+        <span class="font-medium text-white ml-3" [class.hidden]="sidebarCollapsed">Dashboard</span>
+        <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" [class.hidden]="sidebarCollapsed">
+          <i class="pi pi-chevron-right text-white/60"></i>
+        </div>
       </a>
 
-      <!-- Vital Task (destacado como en la imagen) -->
+      <!-- Tasks (Highlighted) -->
       <a routerLink="/tasks" 
-         class="flex items-center space-x-3 px-4 py-3 text-red-400 bg-red-500/10 rounded-lg hover:bg-red-500/20 hover:text-red-300 transition-all duration-200 group border border-red-500/20">
-        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-        </svg>
-        <span class="font-medium">Vital Task</span>
+         class="sidebar-item group bg-gradient-to-r from-red-500/20 to-pink-500/20 border border-red-500/30">
+        <div class="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center group-hover:bg-red-500/30 transition-colors">
+          <i class="pi pi-exclamation-triangle text-lg text-red-400"></i>
+        </div>
+        <span class="font-medium text-red-300 ml-3" [class.hidden]="sidebarCollapsed">Vital Tasks</span>
+        <div class="ml-auto" [class.hidden]="sidebarCollapsed">
+          <span class="px-2 py-1 bg-red-500 text-white text-xs rounded-full">{{ getTotalTasks() }}</span>
+        </div>
       </a>
 
-      <!-- My Task -->
+      <!-- My Tasks -->
       <a routerLink="/tasks" 
-         routerLinkActive="!bg-red-500 !text-white shadow-lg"
-         class="flex items-center space-x-3 px-4 py-3 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group">
-        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-        <span class="font-medium">My Task</span>
+         routerLinkActive="active"
+         class="sidebar-item group">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+          <i class="pi pi-check-circle text-lg text-white"></i>
+        </div>
+        <span class="font-medium text-white ml-3" [class.hidden]="sidebarCollapsed">My Tasks</span>
+        <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" [class.hidden]="sidebarCollapsed">
+          <i class="pi pi-chevron-right text-white/60"></i>
+        </div>
       </a>
 
-      <!-- Task Categories -->
-      <a href="#" 
-         class="flex items-center space-x-3 px-4 py-3 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group">
-        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"></path>
-        </svg>
-        <span class="font-medium">Task Categories</span>
+      <!-- Categories -->
+      <a href="#" class="sidebar-item group">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+          <i class="pi pi-tags text-lg text-white"></i>
+        </div>
+        <span class="font-medium text-white ml-3" [class.hidden]="sidebarCollapsed">Categories</span>
+        <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" [class.hidden]="sidebarCollapsed">
+          <i class="pi pi-chevron-right text-white/60"></i>
+        </div>
       </a>
+
+      <!-- Analytics -->
+      <a href="#" class="sidebar-item group">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+          <i class="pi pi-chart-bar text-lg text-white"></i>
+        </div>
+        <span class="font-medium text-white ml-3" [class.hidden]="sidebarCollapsed">Analytics</span>
+        <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" [class.hidden]="sidebarCollapsed">
+          <i class="pi pi-chevron-right text-white/60"></i>
+        </div>
+      </a>
+
+      <!-- Divider -->
+      <div class="border-t border-gray-700/50 my-6"></div>
 
       <!-- Settings -->
       <a routerLink="/profile" 
-         routerLinkActive="!bg-red-500 !text-white shadow-lg"
-         class="flex items-center space-x-3 px-4 py-3 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group">
-        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
-        </svg>
-        <span class="font-medium">Settings</span>
+         routerLinkActive="active"
+         class="sidebar-item group">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+          <i class="pi pi-cog text-lg text-white"></i>
+        </div>
+        <span class="font-medium text-white ml-3" [class.hidden]="sidebarCollapsed">Settings</span>
+        <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" [class.hidden]="sidebarCollapsed">
+          <i class="pi pi-chevron-right text-white/60"></i>
+        </div>
       </a>
 
       <!-- Help -->
-      <a href="#" 
-         class="flex items-center space-x-3 px-4 py-3 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all duration-200 group">
-        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
-        </svg>
-        <span class="font-medium">Help</span>
+      <a href="#" class="sidebar-item group">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+          <i class="pi pi-question-circle text-lg text-white"></i>
+        </div>
+        <span class="font-medium text-white ml-3" [class.hidden]="sidebarCollapsed">Help</span>
+        <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity" [class.hidden]="sidebarCollapsed">
+          <i class="pi pi-chevron-right text-white/60"></i>
+        </div>
       </a>
-
-      <!-- Logout Button -->
-      <div class="pt-6 mt-6 border-t border-gray-700">
-        <button (click)="logout()" 
-                class="flex items-center space-x-3 w-full px-4 py-3 text-gray-300 rounded-lg hover:bg-red-600 hover:text-white transition-all duration-200 group">
-          <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"></path>
-          </svg>
-          <span class="font-medium">Logout</span>
-        </button>
-      </div>
     </nav>
-  </mat-sidenav>
 
-  <!-- Contenido Principal -->
-  <mat-sidenav-content class="bg-gray-50 dark:bg-gray-900">
-    <!-- Toolbar Superior Minimalista -->
-    <mat-toolbar class="!bg-white dark:!bg-gray-800 !text-gray-900 dark:!text-white shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
-      <!-- Botón de menú para móvil -->
-      <button
-        mat-icon-button
-        (click)="drawer.toggle()"
-        class="text-gray-600 dark:text-gray-300 mr-2"
-        *ngIf="isHandset$ | async">
-        <mat-icon>menu</mat-icon>
+    <!-- Logout Button -->
+    <div class="p-4 border-t border-gray-700/50">
+      <button (click)="logout()" 
+              class="sidebar-item group w-full hover:bg-red-500/20 border border-transparent hover:border-red-500/30">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-red-500/20 transition-colors">
+          <i class="pi pi-sign-out text-lg text-white group-hover:text-red-300"></i>
+        </div>
+        <span class="font-medium text-white group-hover:text-red-300 ml-3" [class.hidden]="sidebarCollapsed">Logout</span>
       </button>
+    </div>
+  </aside>
 
-      <!-- Botón de menú para desktop (opcional - para permitir ocultar sidebar) -->
-      <button
-        mat-icon-button
-        (click)="drawer.toggle()"
-        class="text-gray-600 dark:text-gray-300 mr-2 hidden lg:block"
-        matTooltip="Toggle Sidebar">
-        <mat-icon>menu</mat-icon>
-      </button>
-
-      <!-- Título de página (se puede personalizar) -->
-      <div class="flex-1">
-        <h1 class="text-xl font-semibold text-gray-900 dark:text-white">
-          Task Manager
-        </h1>
-      </div>
-
-      <!-- Usuario en toolbar (versión minimalista) -->
-      <div class="flex items-center space-x-3" *ngIf="userProfile">
-        <!-- Notificaciones -->
-        <button mat-icon-button class="text-gray-600 dark:text-gray-300 relative">
-          <mat-icon>notifications_none</mat-icon>
-          <div class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
+  <!-- Main Content Area -->
+  <div class="flex-1 flex flex-col min-w-0">
+    <!-- Top Navigation Bar -->
+    <header class="glass-card-strong mx-6 mt-6 mb-4 sticky top-6 z-30">
+      <div class="flex items-center justify-between p-4">
+        <!-- Mobile Menu Button -->
+        <button class="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
+                (click)="toggleMobileMenu()">
+          <i class="pi pi-bars text-xl text-gray-700 dark:text-gray-300"></i>
         </button>
 
-        <!-- Menú de usuario -->
-        <button mat-button [matMenuTriggerFor]="userMenu" 
-                class="flex items-center space-x-2 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 transition-colors">
-          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-semibold text-white text-sm">
-            {{ getUserInitials() }}
+        <!-- Search Bar -->
+        <div class="flex-1 max-w-md mx-4">
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="pi pi-search text-gray-400"></i>
+            </div>
+            <input type="text" 
+                   placeholder="Search tasks, projects..."
+                   class="w-full pl-10 pr-4 py-2 bg-white/50 dark:bg-gray-800/50 border border-white/20 rounded-xl text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent backdrop-blur-sm transition-all duration-200">
           </div>
-          <span class="hidden md:block font-medium">{{ getFirstName() }}</span>
-          <mat-icon class="!text-base">expand_more</mat-icon>
-        </button>
+        </div>
 
-        <!-- Menú desplegable del usuario -->
-        <mat-menu #userMenu="matMenu" class="mt-2">
-          <div class="px-4 py-3 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-600">
-            <p class="font-medium text-gray-900 dark:text-white">{{ getUserFullName() }}</p>
-            <p class="text-sm text-gray-600 dark:text-gray-400">{{ getUserEmail() }}</p>
+        <!-- Right Side Actions -->
+        <div class="flex items-center space-x-3">
+          <!-- Notifications -->
+          <button class="relative p-2 rounded-xl hover:bg-white/10 transition-colors group">
+            <i class="pi pi-bell text-xl text-gray-700 dark:text-gray-300 group-hover:text-blue-500"></i>
+            <div class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+              <span class="text-xs text-white font-bold">3</span>
+            </div>
+          </button>
+
+          <!-- Theme Toggle -->
+          <button class="p-2 rounded-xl hover:bg-white/10 transition-colors group">
+            <i class="pi pi-moon text-xl text-gray-700 dark:text-gray-300 group-hover:text-blue-500"></i>
+          </button>
+
+          <!-- User Menu -->
+          <div class="relative" *ngIf="userProfile">
+            <button [matMenuTriggerFor]="userMenu" 
+                    class="flex items-center space-x-3 p-2 rounded-xl hover:bg-white/10 transition-colors group">
+              <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                <span class="text-white font-semibold text-sm">
+                  {{ getUserInitials() }}
+                </span>
+              </div>
+              <span class="hidden md:block font-medium text-gray-900 dark:text-white">
+                {{ getFirstName() }}
+              </span>
+              <i class="pi pi-chevron-down text-sm text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"></i>
+            </button>
+
+            <mat-menu #userMenu="matMenu" class="user-menu">
+              <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                <p class="font-medium text-gray-900 dark:text-white">{{ getUserFullName() }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">{{ getUserEmail() }}</p>
+              </div>
+              
+              <button mat-menu-item routerLink="/profile" class="flex items-center space-x-3 py-3">
+                <i class="pi pi-user text-gray-500"></i>
+                <span>Profile Settings</span>
+              </button>
+              
+              <button mat-menu-item class="flex items-center space-x-3 py-3">
+                <i class="pi pi-cog text-gray-500"></i>
+                <span>Preferences</span>
+              </button>
+              
+              <button mat-menu-item class="flex items-center space-x-3 py-3">
+                <i class="pi pi-question-circle text-gray-500"></i>
+                <span>Help & Support</span>
+              </button>
+              
+              <mat-divider></mat-divider>
+              
+              <button mat-menu-item (click)="logout()" class="flex items-center space-x-3 py-3 text-red-600 dark:text-red-400">
+                <i class="pi pi-sign-out"></i>
+                <span>Sign Out</span>
+              </button>
+            </mat-menu>
           </div>
-          
-          <button mat-menu-item routerLink="/profile" class="flex items-center space-x-3 py-3">
-            <mat-icon class="text-gray-600 dark:text-gray-400">person</mat-icon>
-            <span>Mi Perfil</span>
-          </button>
-          
-          <button mat-menu-item class="flex items-center space-x-3 py-3">
-            <mat-icon class="text-gray-600 dark:text-gray-400">settings</mat-icon>
-            <span>Configuración</span>
-          </button>
-          
-          <mat-divider></mat-divider>
-          
-          <button mat-menu-item (click)="logout()" class="flex items-center space-x-3 py-3 text-red-600 dark:text-red-400">
-            <mat-icon>logout</mat-icon>
-            <span>Cerrar Sesión</span>
-          </button>
-        </mat-menu>
+        </div>
       </div>
-    </mat-toolbar>
+    </header>
 
-    <!-- Contenido de las páginas -->
-    <main class="min-h-[calc(100vh-64px)] bg-gray-50 dark:bg-gray-900">
+    <!-- Page Content -->
+    <main class="flex-1 overflow-auto">
       <router-outlet></router-outlet>
     </main>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+  </div>
+</div>
+
+<!-- Mobile Bottom Navigation -->
+<nav class="bottom-nav md:hidden" *ngIf="showMobileNav">
+  <div class="grid grid-cols-5 gap-1">
+    <a routerLink="/dashboard" 
+       routerLinkActive="active"
+       class="bottom-nav-item">
+      <i class="pi pi-th-large text-lg"></i>
+      <span class="text-xs font-medium">Home</span>
+    </a>
+    
+    <a routerLink="/tasks" 
+       routerLinkActive="active"
+       class="bottom-nav-item">
+      <i class="pi pi-check-circle text-lg"></i>
+      <span class="text-xs font-medium">Tasks</span>
+    </a>
+    
+    <button class="bottom-nav-item bg-gradient-primary text-white rounded-2xl mx-2 -mt-4 shadow-glow"
+            routerLink="/tasks">
+      <i class="pi pi-plus text-xl"></i>
+    </button>
+    
+    <a href="#" class="bottom-nav-item">
+      <i class="pi pi-chart-bar text-lg"></i>
+      <span class="text-xs font-medium">Stats</span>
+    </a>
+    
+    <a routerLink="/profile" 
+       routerLinkActive="active"
+       class="bottom-nav-item">
+      <i class="pi pi-user text-lg"></i>
+      <span class="text-xs font-medium">Profile</span>
+    </a>
+  </div>
+</nav>
+
+<!-- Mobile Sidebar Overlay -->
+<div *ngIf="showMobileSidebar" 
+     class="fixed inset-0 bg-black/50 z-50 md:hidden"
+     (click)="closeMobileSidebar()">
+  <aside class="sidebar-modern w-80 h-full" (click)="$event.stopPropagation()">
+    <!-- Sidebar Header -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-700/50">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center shadow-glow">
+          <i class="pi pi-check-circle text-white text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-white">TaskFlow</h1>
+          <p class="text-xs text-gray-400">Pro Dashboard</p>
+        </div>
+      </div>
+      <button (click)="closeMobileSidebar()" 
+              class="p-2 rounded-lg hover:bg-white/10 transition-colors text-gray-400 hover:text-white">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <!-- User Profile Section -->
+    <div class="p-6 border-b border-gray-700/50" *ngIf="userProfile">
+      <div class="flex items-center space-x-3">
+        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+          <span class="text-white font-semibold text-lg">
+            {{ getUserInitials() }}
+          </span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold text-white truncate">{{ getFirstName() }}</div>
+          <div class="text-sm text-gray-400 truncate">{{ getUserEmail() }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+      <!-- Dashboard -->
+      <a routerLink="/dashboard" 
+         routerLinkActive="active"
+         class="sidebar-item group"
+         (click)="closeMobileSidebar()">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+          <i class="pi pi-th-large text-lg text-white"></i>
+        </div>
+        <span class="font-medium text-white ml-3">Dashboard</span>
+        <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+          <i class="pi pi-chevron-right text-white/60"></i>
+        </div>
+      </a>
+
+      <!-- Tasks (Highlighted) -->
+      <a routerLink="/tasks" 
+         class="sidebar-item group bg-gradient-to-r from-red-500/20 to-pink-500/20 border border-red-500/30"
+         (click)="closeMobileSidebar()">
+        <div class="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center group-hover:bg-red-500/30 transition-colors">
+          <i class="pi pi-exclamation-triangle text-lg text-red-400"></i>
+        </div>
+        <span class="font-medium text-red-300 ml-3">Vital Tasks</span>
+        <div class="ml-auto">
+          <span class="px-2 py-1 bg-red-500 text-white text-xs rounded-full">{{ getTotalTasks() }}</span>
+        </div>
+      </a>
+
+      <!-- My Tasks -->
+      <a routerLink="/tasks" 
+         routerLinkActive="active"
+         class="sidebar-item group"
+         (click)="closeMobileSidebar()">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+          <i class="pi pi-check-circle text-lg text-white"></i>
+        </div>
+        <span class="font-medium text-white ml-3">My Tasks</span>
+        <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+          <i class="pi pi-chevron-right text-white/60"></i>
+        </div>
+      </a>
+
+      <!-- Categories -->
+      <a href="#" class="sidebar-item group" (click)="closeMobileSidebar()">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+          <i class="pi pi-tags text-lg text-white"></i>
+        </div>
+        <span class="font-medium text-white ml-3">Categories</span>
+        <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+          <i class="pi pi-chevron-right text-white/60"></i>
+        </div>
+      </a>
+
+      <!-- Analytics -->
+      <a href="#" class="sidebar-item group" (click)="closeMobileSidebar()">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+          <i class="pi pi-chart-bar text-lg text-white"></i>
+        </div>
+        <span class="font-medium text-white ml-3">Analytics</span>
+        <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+          <i class="pi pi-chevron-right text-white/60"></i>
+        </div>
+      </a>
+
+      <!-- Divider -->
+      <div class="border-t border-gray-700/50 my-6"></div>
+
+      <!-- Settings -->
+      <a routerLink="/profile" 
+         routerLinkActive="active"
+         class="sidebar-item group"
+         (click)="closeMobileSidebar()">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+          <i class="pi pi-cog text-lg text-white"></i>
+        </div>
+        <span class="font-medium text-white ml-3">Settings</span>
+        <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+          <i class="pi pi-chevron-right text-white/60"></i>
+        </div>
+      </a>
+
+      <!-- Help -->
+      <a href="#" class="sidebar-item group" (click)="closeMobileSidebar()">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+          <i class="pi pi-question-circle text-lg text-white"></i>
+        </div>
+        <span class="font-medium text-white ml-3">Help</span>
+        <div class="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+          <i class="pi pi-chevron-right text-white/60"></i>
+        </div>
+      </a>
+    </nav>
+
+    <!-- Logout Button -->
+    <div class="p-4 border-t border-gray-700/50">
+      <button (click)="logout(); closeMobileSidebar()" 
+              class="sidebar-item group w-full hover:bg-red-500/20 border border-transparent hover:border-red-500/30">
+        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-red-500/20 transition-colors">
+          <i class="pi pi-sign-out text-lg text-white group-hover:text-red-300"></i>
+        </div>
+        <span class="font-medium text-white group-hover:text-red-300 ml-3">Logout</span>
+      </button>
+    </div>
+  </aside>
+</div>

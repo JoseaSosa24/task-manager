@@ -1,4 +1,3 @@
-// frontend/src/app/features/dashboard/dashboard.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -9,11 +8,20 @@ import { TaskService } from '../../core/services/task.service';
 import { AuthService } from '../../core/services/auth.service';
 import { TaskStats, Task, TaskStatusType, TaskPriorityType } from '../../core/models/task.interface';
 import { UserProfile } from '../../core/models/user.interface';
+import { StatCardComponent } from '../../shared/components/stat-card/stat-card.component';
+import { ChartWidgetComponent, ChartData } from '../../shared/components/chart-widget/chart-widget.component';
+import { ExportButtonComponent } from '../../shared/components/export-button/export-button.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [
+    CommonModule, 
+    RouterModule, 
+    StatCardComponent, 
+    ChartWidgetComponent, 
+    ExportButtonComponent
+  ],
   templateUrl: './dashboard.component.html',
 })
 export class DashboardComponent implements OnInit, OnDestroy {
@@ -21,7 +29,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
   recentTasks: Task[] = [];
   userProfile: UserProfile | null = null;
   loading = false;
+  chartsLoading = false;
   showTaskMenu: number | null = null;
+
+  // Chart data
+  weeklyProgressData?: ChartData;
+  priorityDistributionData?: ChartData;
+  
+  // Export data
+  exportData: any[] = [];
 
   private destroy$ = new Subject<void>();
 
@@ -29,12 +45,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private taskService: TaskService,
     private authService: AuthService,
     private router: Router
-
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.loadUserProfile();
     this.loadDashboardData();
+    this.setupChartData();
     this.addClickOutsideListener();
   }
 
@@ -59,11 +75,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleTaskMenu(event: Event, task: Task): void {
-    event.stopPropagation();
-    this.showTaskMenu = this.showTaskMenu === task.id ? null : task.id;
-  }
-
   private loadUserProfile(): void {
     this.userProfile = this.authService.getUserProfile();
   }
@@ -71,6 +82,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private loadDashboardData(): void {
     this.loading = true;
 
+    // Load task statistics
     this.taskService.getMyTaskStats()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -78,6 +90,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         error: (error) => console.error('Error loading stats:', error)
       });
 
+    // Load recent tasks
     this.taskService.getMyTasks()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -85,6 +98,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.recentTasks = tasks
             .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
             .slice(0, 10);
+          this.prepareExportData();
           this.loading = false;
         },
         error: (error) => {
@@ -94,7 +108,71 @@ export class DashboardComponent implements OnInit, OnDestroy {
       });
   }
 
-  // Métodos de cálculo de porcentajes basados en tareas reales
+  private setupChartData(): void {
+    this.chartsLoading = true;
+    
+    // Simulate loading delay for better UX
+    setTimeout(() => {
+      this.weeklyProgressData = {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          label: 'Completed Tasks',
+          data: [12, 19, 8, 15, 22, 8, 14],
+          borderColor: 'rgb(59, 130, 246)',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          fill: true,
+          tension: 0.4
+        }, {
+          label: 'Created Tasks',
+          data: [8, 12, 15, 10, 18, 12, 16],
+          borderColor: 'rgb(16, 185, 129)',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          fill: true,
+          tension: 0.4
+        }]
+      };
+
+      this.priorityDistributionData = {
+        labels: ['Low', 'Medium', 'High', 'Urgent'],
+        datasets: [{
+          label: 'Tasks by Priority',
+          data: [
+            this.getLowPriorityCount(),
+            this.getMediumPriorityCount(),
+            this.getHighPriorityCount(),
+            this.getUrgentPriorityCount()
+          ],
+          backgroundColor: [
+            'rgba(34, 197, 94, 0.8)',
+            'rgba(59, 130, 246, 0.8)',
+            'rgba(249, 115, 22, 0.8)',
+            'rgba(239, 68, 68, 0.8)'
+          ],
+          borderColor: [
+            'rgb(34, 197, 94)',
+            'rgb(59, 130, 246)',
+            'rgb(249, 115, 22)',
+            'rgb(239, 68, 68)'
+          ],
+          borderWidth: 2
+        }]
+      };
+
+      this.chartsLoading = false;
+    }, 1000);
+  }
+
+  private prepareExportData(): void {
+    this.exportData = this.recentTasks.map(task => ({
+      Title: task.title,
+      Status: this.getStatusText(task.status),
+      Priority: this.getPriorityText(task.priority),
+      'Due Date': task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No due date',
+      Created: new Date(task.createdAt).toLocaleDateString()
+    }));
+  }
+
+  // Statistics calculation methods
   getTotalTasks(): number {
     return this.recentTasks.length;
   }
@@ -111,6 +189,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return this.recentTasks.filter(task => task.status === 'TODO').length;
   }
 
+  getOverdueCount(): number {
+    return this.recentTasks.filter(task => 
+      task.dueDate && 
+      new Date(task.dueDate) < new Date() && 
+      task.status !== 'DONE'
+    ).length;
+  }
+
+  getLowPriorityCount(): number {
+    return this.recentTasks.filter(task => task.priority === 'LOW').length;
+  }
+
+  getMediumPriorityCount(): number {
+    return this.recentTasks.filter(task => task.priority === 'MEDIUM').length;
+  }
+
+  getHighPriorityCount(): number {
+    return this.recentTasks.filter(task => task.priority === 'HIGH').length;
+  }
+
+  getUrgentPriorityCount(): number {
+    return this.recentTasks.filter(task => task.priority === 'URGENT').length;
+  }
+
   getCompletionPercentage(): number {
     const total = this.getTotalTasks();
     const completed = this.getCompletedCount();
@@ -123,153 +225,104 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return total > 0 ? Math.round((inProgress / total) * 100) : 0;
   }
 
-  getNotStartedPercentage(): number {
-    const total = this.getTotalTasks();
-    const pending = this.getPendingCount();
-    return total > 0 ? Math.round((pending / total) * 100) : 0;
+  // Advanced metrics
+  getAverageCompletionTime(): string {
+    // Mock calculation - in real app, calculate from task completion data
+    return '2.5';
   }
 
-  // Métodos de filtrado de tareas
-  getCompletedTasks(): Task[] {
-    return this.recentTasks.filter(task => task.status === 'DONE');
+  getTasksPerDay(): string {
+    // Mock calculation - in real app, calculate from recent activity
+    return '3.2';
   }
 
-  getUrgentTasks(): Task[] {
-    return this.recentTasks.filter(task =>
-      task.priority === 'URGENT' &&
-      task.status !== 'DONE' 
-    );
+  getMostProductiveHour(): string {
+    // Mock calculation - in real app, analyze task creation/completion times
+    return '10 AM';
   }
 
-  // Métodos de utilidad para UI
+  // UI helper methods
+  getCurrentDate(): string {
+    const now = new Date();
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    return `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+  }
+
+  formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
+  getTaskStatusBg(status: TaskStatusType): string {
+    const classes = {
+      'TODO': 'bg-blue-500',
+      'IN_PROGRESS': 'bg-yellow-500',
+      'IN_REVIEW': 'bg-purple-500',
+      'DONE': 'bg-green-500'
+    };
+    return classes[status] || 'bg-gray-500';
+  }
+
+  getTaskStatusIcon(status: TaskStatusType): string {
+    const icons = {
+      'TODO': 'pi pi-circle',
+      'IN_PROGRESS': 'pi pi-clock',
+      'IN_REVIEW': 'pi pi-eye',
+      'DONE': 'pi pi-check'
+    };
+    return icons[status] || 'pi pi-circle';
+  }
+
   getPriorityClasses(priority: TaskPriorityType): string {
-    const base = 'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium';
-    const colors = {
-      'URGENT': 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
+    const classes = {
+      'LOW': 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
+      'MEDIUM': 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
       'HIGH': 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400',
-      'MEDIUM': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
-      'LOW': 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+      'URGENT': 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
     };
-    return `${base} ${colors[priority] || 'bg-gray-100 text-gray-800'}`;
-  }
-
-  getStatusClasses(status: TaskStatusType): string {
-    const base = 'inline-flex items-center px-2 py-1 rounded-full text-xs font-medium';
-    const colors = {
-      'TODO': 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
-      'IN_PROGRESS': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
-      'IN_REVIEW': 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400',
-      'DONE': 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
-      'CANCELLED': 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-    };
-    return `${base} ${colors[status] || 'bg-gray-100 text-gray-800'}`;
-  }
-
-  getStatusText(status: TaskStatusType): string {
-    const labels = {
-      'TODO': 'Por Hacer',
-      'IN_PROGRESS': 'En Progreso',
-      'IN_REVIEW': 'En Revisión',
-      'DONE': 'Completada',
-    };
-    return labels[status] || status;
+    return classes[priority] || 'bg-gray-100 text-gray-800';
   }
 
   getPriorityText(priority: TaskPriorityType): string {
     const labels = {
-      'LOW': 'Baja',
-      'MEDIUM': 'Media',
-      'HIGH': 'Alta',
-      'URGENT': 'Urgente'
+      'LOW': 'Low',
+      'MEDIUM': 'Medium',
+      'HIGH': 'High',
+      'URGENT': 'Urgent'
     };
     return labels[priority] || priority;
   }
 
-  // Métodos de verificación de estado
-  isCompleted(task: Task): boolean {
-    return task.status === 'DONE';
+  getStatusText(status: TaskStatusType): string {
+    const labels = {
+      'TODO': 'To Do',
+      'IN_PROGRESS': 'In Progress',
+      'IN_REVIEW': 'In Review',
+      'DONE': 'Completed'
+    };
+    return labels[status] || status;
   }
 
-  isOverdue(task: Task): boolean {
-    if (!task.dueDate || task.status === 'DONE') return false;
-    return new Date(task.dueDate) < new Date();
-  }
-
-  // Métodos de acción
-  logout(): void {
-    this.authService.logout();
-  }
-
+  // Action methods
   refreshData(): void {
     this.loadDashboardData();
+    this.setupChartData();
   }
 
-  // Método de utilidad para fechas
-  getCurrentDate(): string {
-    const now = new Date();
-    const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-    const day = now.getDate().toString().padStart(2, '0');
-    const month = (now.getMonth() + 1).toString().padStart(2, '0');
-    const year = now.getFullYear();
-    return `${days[now.getDay()]} ${day}/${month}/${year}`;
+  toggleTaskMenu(event: Event, task: Task): void {
+    event.stopPropagation();
+    this.showTaskMenu = this.showTaskMenu === task.id ? null : task.id;
   }
 
-  goToTask(taskId: number): void {
-    this.router.navigate(['/tasks', taskId]);
-  }
-
-  goToTasksByStatus(status: string): void {
-    this.router.navigate(['/tasks'], {
-      queryParams: { status: status === 'ALL' ? null : status }
-    });
-  }
-
-  getTodayTasks(): number {
-    const today = new Date().toDateString();
-    return this.recentTasks.filter(task =>
-      task.dueDate && new Date(task.dueDate).toDateString() === today
-    ).length;
-  }
   openTaskDetail(task: Task): void {
-    // Abrir modal o navegar a detalle
     this.router.navigate(['/tasks', task.id]);
   }
 
-  editTask(task: Task): void {
-    this.showTaskMenu = null;
-    // Abrir modal de edición o navegar
-    this.router.navigate(['/tasks', task.id, 'edit']);
-  }
-
-  toggleTaskStatus(task: Task): void {
-    this.showTaskMenu = null;
-    const newStatus = task.status === 'DONE' ? 'TODO' : 'DONE';
-
-    this.taskService.updateTask(task.id, { status: newStatus }).subscribe({
-      next: () => {
-        task.status = newStatus as any;
-        // Opcional: mostrar mensaje de éxito
-      },
-      error: (error) => {
-        console.error('Error updating task:', error);
-      }
-    });
-  }
-
-  deleteTask(task: Task): void {
-    this.showTaskMenu = null;
-
-    if (confirm('¿Estás seguro de que quieres eliminar esta tarea?')) {
-      this.taskService.deleteTask(task.id).subscribe({
-        next: () => {
-          this.recentTasks = this.recentTasks.filter(t => t.id !== task.id);
-          // Opcional: mostrar mensaje de éxito
-        },
-        error: (error) => {
-          console.error('Error deleting task:', error);
-        }
-      });
-    }
+  trackByTaskId(index: number, task: Task): number {
+    return task.id;
   }
 }
-
