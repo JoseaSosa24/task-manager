@@ -36,7 +36,8 @@ const routes: Routes = [
       },
       {
         path: 'tasks',
-        loadComponent: () => import('./features/tasks/task-list/task-list.component').then(c => c.TaskListComponent)
+        // ⭐ CAMBIAR ESTA LÍNEA:
+        loadComponent: () => import('./features/tasks/my-tasks/my-tasks.component').then(c => c.MyTasksComponent)
       },
       {
         path: 'profile',
