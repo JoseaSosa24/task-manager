@@ -35,22 +35,22 @@ public class TaskController {
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<TaskDto>> getTasksByStatus(@PathVariable TaskStatus status, 
-                                                        Authentication authentication) {
+    public ResponseEntity<List<TaskDto>> getTasksByStatus(@PathVariable TaskStatus status,
+            Authentication authentication) {
         List<TaskDto> tasks = taskService.getUserTasksByStatus(authentication.getName(), status);
         return ResponseEntity.ok(tasks);
     }
 
     @GetMapping("/priority/{priority}")
-    public ResponseEntity<List<TaskDto>> getTasksByPriority(@PathVariable Priority priority, 
-                                                          Authentication authentication) {
+    public ResponseEntity<List<TaskDto>> getTasksByPriority(@PathVariable Priority priority,
+            Authentication authentication) {
         List<TaskDto> tasks = taskService.getUserTasksByPriority(authentication.getName(), priority);
         return ResponseEntity.ok(tasks);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<TaskDto>> searchTasks(@RequestParam String query, 
-                                                   Authentication authentication) {
+    public ResponseEntity<List<TaskDto>> searchTasks(@RequestParam String query,
+            Authentication authentication) {
         List<TaskDto> tasks = taskService.searchUserTasks(authentication.getName(), query);
         return ResponseEntity.ok(tasks);
     }
@@ -69,30 +69,30 @@ public class TaskController {
     }
 
     @PostMapping
-    public ResponseEntity<TaskDto> createTask(@Valid @RequestBody TaskDto taskDto, 
-                                            Authentication authentication) {
+    public ResponseEntity<TaskDto> createTask(@Valid @RequestBody TaskDto taskDto,
+            Authentication authentication) {
         TaskDto createdTask = taskService.createTask(taskDto, authentication.getName());
         return ResponseEntity.ok(createdTask);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TaskDto> updateTask(@PathVariable Long id, 
-                                            @Valid @RequestBody TaskDto taskDto,
-                                            Authentication authentication) {
+    public ResponseEntity<TaskDto> updateTask(@PathVariable Long id,
+            @Valid @RequestBody TaskDto taskDto,
+            Authentication authentication) {
         TaskDto updatedTask = taskService.updateTask(id, taskDto, authentication.getName());
         return ResponseEntity.ok(updatedTask);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteTask(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id, Authentication authentication) {
         taskService.deleteTask(id, authentication.getName());
-        return ResponseEntity.ok("Tarea eliminada exitosamente");
+        return ResponseEntity.noContent().build(); 
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<TaskDto> updateTaskStatus(@PathVariable Long id, 
-                                                   @RequestParam TaskStatus status,
-                                                   Authentication authentication) {
+    public ResponseEntity<TaskDto> updateTaskStatus(@PathVariable Long id,
+            @RequestParam TaskStatus status,
+            Authentication authentication) {
         TaskDto updatedTask = taskService.updateTaskStatus(id, status, authentication.getName());
         return ResponseEntity.ok(updatedTask);
     }
