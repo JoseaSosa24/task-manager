@@ -190,17 +190,17 @@ mvn spring-boot:run
 # http://localhost:8080/api
 ```
 
-### 3. Frontend (Angular)
+### 3. Frontend (Angular) IMPORTANTE INSNTALAR CON yarn
 ```bash
 cd frontend
 
 # Instalar dependencias
-yarn install
-# o npm install
+yarn install 
+# o simplmente yarn
 
 # Ejecutar en desarrollo
 yarn start
-# o npm start
+#o ng serve
 
 # La aplicación estará disponible en:
 # http://localhost:4200
